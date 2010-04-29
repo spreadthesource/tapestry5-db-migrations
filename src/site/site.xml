@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Tapestry 5 Database Migration">
+
+    <publishDate format="dd MMM yyyy"/>
+
+    <version/>
+
+    <body>
+
+        <menu name="Tapestry 5 DB Migration">
+            <item name="Readme" href="index.html"/>
+        </menu>
+
+        <menu ref="reports"/>
+
+    </body>
+</project>
