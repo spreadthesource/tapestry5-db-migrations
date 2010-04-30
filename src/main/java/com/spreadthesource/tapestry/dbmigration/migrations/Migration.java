@@ -1,4 +1,4 @@
-package com.spreadthesource.tapestry.dbmigration.services;
+package com.spreadthesource.tapestry.dbmigration.migrations;
 
 
 public interface Migration

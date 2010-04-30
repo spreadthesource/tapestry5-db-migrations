@@ -1,5 +1,48 @@
 # Tapestry 5 Database Migration Utility
 
+## About Database Migrations
+
+Database migrations let you create and alter your model in an organized and structured way. 
+
+This module is largely inspired by Ruby on Rails [migrations](http://guides.rubyonrails.org/migrations.html).
+
+## A sample migration
+
+This is an insight of what a couple of migrations can looks like.
+
+	@Version(20100510)
+	public class MyModel implements Migration
+	{
+	    public void up()
+	    {
+	        helper.createTable("users");
+	        helper.addPrimaryKey("users", "id", Types.INTEGER);
+	        helper.addColumn("users", "name", Types.VARCHAR);
+	        helper.addColumn("users", "password", Types.VARCHAR);
+	    }
+	
+	    public void down()
+	    {
+	        helper.dropTable("users");
+	    }
+	}
+	
+	@Version(20100511)
+	public class UsersDescription implements Migration
+	{
+	    public void up()
+	    {
+	        helper.addColumn("users", "description", Types.CLOB);
+	    }
+	
+	    public void down()
+	    {
+	        helper.removeColumn("users", "description");
+	    }
+	}
+	
+
+
 ## How to
 
 TODO : 

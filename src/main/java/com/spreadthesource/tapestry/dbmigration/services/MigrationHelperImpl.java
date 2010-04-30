@@ -11,6 +11,7 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.Mapping;
 import org.hibernate.jdbc.util.FormatStyle;
 import org.hibernate.jdbc.util.Formatter;
+import org.hibernate.mapping.UniqueKey;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.hibernate.type.IntegerType;
 import org.hibernate.type.Type;
@@ -150,6 +151,8 @@ public class MigrationHelperImpl implements MigrationHelper
                     .getName());
             String typeName = getDialect().getTypeName(column.getType());
             hColumn.setSqlType(typeName);
+            hColumn.setUnique(column.isUnique());
+
             hTable.addColumn(hColumn);
         }
 

@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import com.spreadthesource.tapestry.dbmigration.MigrationSymbolConstants;
 import com.spreadthesource.tapestry.dbmigration.annotations.Version;
 import com.spreadthesource.tapestry.dbmigration.data.Table;
+import com.spreadthesource.tapestry.dbmigration.migrations.Migration;
 
 public class MigrationManagerImpl implements MigrationManager
 {
@@ -140,9 +141,7 @@ public class MigrationManagerImpl implements MigrationManager
         }
         catch (ClassNotFoundException e)
         {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-
-        return null;
     }
 }

@@ -6,6 +6,8 @@ public class Column
 {
     private String name;
     
+    private boolean unique;
+    
     private Map<String, String> meta;
     
     private int type;
@@ -31,5 +33,15 @@ public class Column
     
     public String getName() {
         return name;
+    }
+
+    public void setUnique(boolean unique)
+    {
+        this.unique = unique;
+    }
+
+    public boolean isUnique()
+    {
+        return unique;
     }
 }
