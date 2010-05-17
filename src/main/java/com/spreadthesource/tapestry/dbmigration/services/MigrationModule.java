@@ -16,8 +16,12 @@
 
 package com.spreadthesource.tapestry.dbmigration.services;
 
+import org.apache.tapestry5.ioc.Invocation;
 import org.apache.tapestry5.ioc.MappedConfiguration;
+import org.apache.tapestry5.ioc.MethodAdvice;
+import org.apache.tapestry5.ioc.MethodAdviceReceiver;
 import org.apache.tapestry5.ioc.ServiceBinder;
+import org.apache.tapestry5.ioc.annotations.Match;
 
 import com.spreadthesource.tapestry.dbmigration.MigrationSymbolConstants;
 
@@ -30,15 +34,26 @@ public class MigrationModule
         binder.bind(MigrationHelper.class, MigrationHelperImpl.class);
     }
 
+    @Match("MigrationManager")
+    public static void adviseClientInfrastructure(MethodAdviceReceiver receiver,
+            final MigrationRunner runner) throws SecurityException, NoSuchMethodException
+    {
+
+        MethodAdvice advice = new MethodAdvice()
+        {
+            public void advise(Invocation invocation)
+            {
+                runner.inStatement(invocation);
+            }
+        };
+
+        receiver.adviseAllMethods(advice);
+    }
+
     public static void contributeFactoryDefaults(MappedConfiguration<String, String> configuration)
     {
         configuration.add(MigrationSymbolConstants.DO_UPDATE, "true");
         configuration.add(MigrationSymbolConstants.HALT_ON_ERROR, "true");
         configuration.add(MigrationSymbolConstants.VERSIONING_TABLE_NAME, "versions");
     }
-
-    /*
-     * public void contributeActivityFeedWriter( MappedConfiguration<Class, ActivityFeedWriter>
-     * configuration) { configuration.add(AccountActivity.class, accountActivityFeed); }
-     */
 }

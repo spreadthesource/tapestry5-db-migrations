@@ -1,22 +1,31 @@
 package com.spreadthesource.tapestry.dbmigration.services;
 
-import java.sql.Types;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.tapestry5.ioc.ObjectLocator;
 import org.apache.tapestry5.ioc.annotations.Inject;
 import org.apache.tapestry5.ioc.annotations.Symbol;
 import org.apache.tapestry5.ioc.services.ClassNameLocator;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.hibernate.sql.Insert;
+import org.hibernate.sql.JoinFragment;
+import org.hibernate.sql.QuerySelect;
 import org.slf4j.Logger;
 
 import com.spreadthesource.tapestry.dbmigration.MigrationSymbolConstants;
 import com.spreadthesource.tapestry.dbmigration.annotations.Version;
-import com.spreadthesource.tapestry.dbmigration.data.Table;
+import com.spreadthesource.tapestry.dbmigration.init.SchemaInitialization;
 import com.spreadthesource.tapestry.dbmigration.migrations.Migration;
+import com.spreadthesource.tapestry.dbmigration.migrations.MigrationBase;
 
 public class MigrationManagerImpl implements MigrationManager
 {
@@ -28,13 +37,16 @@ public class MigrationManagerImpl implements MigrationManager
 
     private MigrationHelper helper;
 
+    private ObjectLocator objectLocator;
+
     private String versioningTableName;
 
     public MigrationManagerImpl(
             Collection<String> packages,
             Logger logger,
             Session session,
-            ClassNameLocator locator,
+            ClassNameLocator classNameLocator,
+            ObjectLocator objectLocator,
             MigrationRunner runner,
             MigrationHelper helper,
             @Inject @Symbol(MigrationSymbolConstants.VERSIONING_TABLE_NAME) String versioningTableName)
@@ -44,12 +56,13 @@ public class MigrationManagerImpl implements MigrationManager
         this.versioningTableName = versioningTableName;
         this.helper = helper;
         this.runner = runner;
+        this.objectLocator = objectLocator;
 
         for (String packageName : packages)
         {
             log.debug("Looking for migrations into: " + packageName);
 
-            Collection<String> classesForPackage = locator.locateClassNames(packageName);
+            Collection<String> classesForPackage = classNameLocator.locateClassNames(packageName);
 
             for (String className : classesForPackage)
             {
@@ -69,69 +82,137 @@ public class MigrationManagerImpl implements MigrationManager
 
     public Integer current()
     {
-        // get current version number
+        QuerySelect q = new QuerySelect(helper.getDialect());
+        q.addSelectFragmentString("version");
+
+        JoinFragment from = q.getJoinFragment();
+        from.addJoins(" " + versioningTableName, "");
+
+        q.addOrderBy("version DESC");
+
+        ResultSet r = runner.query(q.toQueryString());
+
+        try
+        {
+            if (r.next()) return r.getInt("version");
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+
         return null;
     }
 
     public Integer down()
     {
-        // 1 - get current version number (with current)
-        // 2 - get corresponding class
-        // 3 - play down()
-        // 4 - get generated SQL and play it with MigrationRunner
-        // 5 - delete last version in versionning table
-        return null;
-    }
+        Integer current = current();
+        String className = classes.get(current);
 
-    public Integer migrate()
-    {
-        for (Integer version : classes.keySet())
-        {
-            // 1 - check this.current() is contained in this.classes
-            // 2 - check this.current() != last key of this.classes
-            // 3 - play this.up() method
+        if (className == null)
+            throw new RuntimeException("Can not play down() for migration version: " + current);
 
-            log.debug(version + " ");
-        }
-        return null;
+        Migration migration = getMigration(className);
+
+        migration.down();
+
+        SortedMap<Integer, String> previousMigrations = classes.headMap(current);
+
+        if (previousMigrations.size() < 1) return current;
+
+        Integer previous = previousMigrations.lastKey();
+
+        recordVersion(previous);
+
+        return current();
     }
 
     public Integer up()
     {
-        // 1 - get current version number (with current)
-        // 2 - get corresponding class
-        // 3 - play up()
-        // 4 - get generated SQL and play it with MigrationRunner
-        // 5 - delete last version in versionning table
-        return null;
+        Integer current = current();
+
+        SortedMap<Integer, String> pendingMigrations = classes.tailMap(current);
+
+        Iterator<Integer> iterator = pendingMigrations.keySet().iterator();
+
+        if (iterator.hasNext())
+        {
+            Integer next = iterator.next();
+
+            String className = classes.get(next);
+
+            Migration migration = getMigration(className);
+
+            migration.up();
+
+            current = current();
+
+            recordVersion(current);
+        }
+
+        return current;
     }
 
     public void initialize()
     {
-        versioningTableName = "nanane";
-        
         if (helper.checkIfTableExists(versioningTableName)) return;
 
-        log.debug("Schema is not versionned. Creation versionning table: " + versioningTableName);
-
-        Table versions = new Table(versioningTableName);
-        versions.addColumn("version", Types.INTEGER);
-        versions.addColumn("anotherCol", Types.DECIMAL);
-        versions.addColumn("anotherCol2", Types.CLOB);
+        log.debug("Schema is not versionned. Creating versionning table: " + versioningTableName + " (playing " + SchemaInitialization.class.getCanonicalName() + ")");
         
-
-        String sql = helper.createTable(versions);
+        Migration schemaInitialization = getMigration(SchemaInitialization.class.getCanonicalName());
         
-        runner.run(sql);
+        schemaInitialization.up();
+        
+        recordVersion(0);
+
+        runner.update(helper.getPendingSQL());
+    }
+
+    public Integer migrate()
+    {
+        Integer current = current();
+        Integer next = up();
+
+        while (current != next)
+        {
+            current = next;
+            next = up();
+        }
+
+        return current;
+    }
+
+    public Integer reset()
+    {
+        Integer current = current();
+        Integer previous = down();
+
+        while (previous != current)
+        {
+            current = previous;
+            previous = down();
+        }
+
+        return current;
+    }
+
+    private void recordVersion(Integer version)
+    {
+        Date now = new Date(System.currentTimeMillis());
+
+        Insert insert = new Insert(helper.getDialect());
+        insert.setTableName(versioningTableName);
+        insert.addColumn("version", version.toString());
+        insert.addColumn("datetime", Hibernate.TIMESTAMP.toString(now));
+
+        runner.update(insert.toStatementString());
     }
 
     private Integer getMigrationVersion(String className)
     {
         try
         {
-            List<Class<?>> interfaces = Arrays.asList(Class.forName(className).getInterfaces());
-
-            if (!interfaces.contains(Migration.class)) return null;
+            if (checkIfImplements(Class.forName(className), MigrationBase.class)) return null;
 
             Version version = Class.forName(className).getAnnotation(Version.class);
 
@@ -143,5 +224,39 @@ public class MigrationManagerImpl implements MigrationManager
         {
             throw new RuntimeException(e);
         }
+    }
+
+    private Migration getMigration(String className)
+    {
+        try
+        {
+            if (checkIfImplements(Class.forName(className), MigrationBase.class)) return null;
+
+            Version version = Class.forName(className).getAnnotation(Version.class);
+
+            if (version == null) return null;
+
+            return (Migration) objectLocator.autobuild(Class.forName(className));
+        }
+        catch (ClassNotFoundException e)
+        {
+            e.printStackTrace();
+            log.error("Error when trying to get an instance of migration", e);
+        }
+
+        return null;
+    }
+
+    private boolean checkIfImplements(Class<?> clazz, Class<?> inter)
+    {
+        List<Class<?>> interfaces = Arrays.asList(clazz.getInterfaces());
+
+        if (interfaces.contains(inter)) return true;
+
+        Class<?> parent = clazz.getSuperclass();
+        while (parent != Object.class)
+            return checkIfImplements(parent, inter);
+
+        return false;
     }
 }

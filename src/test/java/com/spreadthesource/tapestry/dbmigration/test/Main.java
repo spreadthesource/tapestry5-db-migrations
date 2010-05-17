@@ -6,11 +6,10 @@ import org.apache.tapestry5.ioc.RegistryBuilder;
 
 import com.spreadthesource.tapestry.dbmigration.services.MigrationManager;
 import com.spreadthesource.tapestry.dbmigration.services.MigrationModule;
-import com.spreadthesource.tapestry.dbmigration.services.TestModule;
+import com.spreadthesource.tapestry.dbmigration.test.services.TestModule;
 
 public class Main
 {
-
     public static void main(String[] args)
     {
         RegistryBuilder builder = new RegistryBuilder();
@@ -23,9 +22,9 @@ public class Main
         MigrationManager manager = registry.getService(MigrationManager.class);
 
         manager.initialize();
+        
+        manager.migrate();
+        
         System.out.println("Current version number is : " + manager.current());
-        manager.up();
-
     }
-
 }

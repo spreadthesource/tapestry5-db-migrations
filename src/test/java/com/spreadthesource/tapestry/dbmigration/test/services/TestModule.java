@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-package com.spreadthesource.tapestry.dbmigration.services;
+package com.spreadthesource.tapestry.dbmigration.test.services;
 
 import org.apache.tapestry5.ioc.Configuration;
 
@@ -23,7 +23,7 @@ public class TestModule
 
     public void contributeMigrationManager(Configuration<String> configuration)
     {
-        configuration.add("com.spreadthesource.tapestry.dbmigration.migrations");
+        configuration.add("com.spreadthesource.tapestry.dbmigration.test.migrations");
     }
 
 }

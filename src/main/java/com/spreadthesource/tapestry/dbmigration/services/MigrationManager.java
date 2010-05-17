@@ -1,5 +1,6 @@
 package com.spreadthesource.tapestry.dbmigration.services;
 
+
 public interface MigrationManager
 {
     /**

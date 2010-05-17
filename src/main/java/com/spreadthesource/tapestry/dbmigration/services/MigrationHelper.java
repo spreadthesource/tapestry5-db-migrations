@@ -9,23 +9,36 @@ import com.spreadthesource.tapestry.dbmigration.hibernate.ConnectionHelper;
 public interface MigrationHelper
 {
     public Dialect getDialect();
-    
-    public void createTable(String tableName);
 
-    public <T> void addColumn(String tableName, String columnName, T columnType);
-
-    public void dropTable(String tableName);
-    
     public String getDefaultSchema();
-    
+
     public String getDefaultCatalog();
-    
+
     public ConnectionHelper getConnectionHelper();
-    
+
     public Formatter getFormatter();
-    
-    public boolean checkIfTableExists(String tableName);
-    
+
+    /**
+     * Create a Table , add the Table creation SQL to pending SQL and also return SQL
+     * 
+     * @param table
+     * @return creation SQL
+     */
     public String createTable(Table table);
+
+    /**
+     * Drop a Table by adding SQL drop code to pending SQL and also return it
+     * 
+     * @param tableName
+     * @return drop table SQL
+     */
+    public String dropTable(String tableName);
+
+    public boolean checkIfTableExists(String tableName);
+
+    /**
+     * Return pending SQL commands and clear the stack
+     */
+    public String[] getPendingSQL();
 
 }

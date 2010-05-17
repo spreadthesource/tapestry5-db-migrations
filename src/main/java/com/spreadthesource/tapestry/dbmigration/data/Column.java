@@ -2,19 +2,26 @@ package com.spreadthesource.tapestry.dbmigration.data;
 
 import java.util.Map;
 
+import org.hibernate.cfg.Ejb3Column;
+import org.hibernate.type.NullableType;
+
 public class Column
 {
     private String name;
     
     private boolean unique;
     
+    private int length;
+    
     private Map<String, String> meta;
     
-    private int type;
+    private NullableType type;
     
-    public Column(String name, int type) {
+    public Column(String name, NullableType type) {
         this.name = name;
         this.type = type;
+        
+        this.length = Ejb3Column.DEFAULT_COLUMN_LENGTH;
     }
 
     public void setMeta(Map<String, String> meta)
@@ -27,8 +34,12 @@ public class Column
         return meta;
     }
     
-    public int getType() {
+    public NullableType getType() {
         return type;
+    }
+    
+    public int getSQLType() {
+        return type.sqlType();
     }
     
     public String getName() {
@@ -43,5 +54,15 @@ public class Column
     public boolean isUnique()
     {
         return unique;
+    }
+
+    public void setLength(int length)
+    {
+        this.length = length;
+    }
+
+    public int getLength()
+    {
+        return length;
     }
 }
