@@ -1,6 +1,7 @@
 package com.spreadthesource.tapestry.dbmigration.services;
 
 import java.sql.ResultSet;
+import java.util.List;
 
 import org.apache.tapestry5.ioc.Invocation;
 
@@ -12,6 +13,7 @@ public interface MigrationRunner
      * @param sql
      */
     public void update(String... sql);
+    public void update(List<String> sql);
     
     /**
      * Play a SQL single SELECT query and returns result

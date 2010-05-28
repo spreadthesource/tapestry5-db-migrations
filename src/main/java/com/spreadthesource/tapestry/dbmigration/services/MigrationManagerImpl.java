@@ -3,10 +3,8 @@ package com.spreadthesource.tapestry.dbmigration.services;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -26,6 +24,7 @@ import com.spreadthesource.tapestry.dbmigration.annotations.Version;
 import com.spreadthesource.tapestry.dbmigration.init.SchemaInitialization;
 import com.spreadthesource.tapestry.dbmigration.migrations.Migration;
 import com.spreadthesource.tapestry.dbmigration.migrations.MigrationBase;
+import com.spreadthesource.tapestry.dbmigration.utils.MigrationUtils;
 
 public class MigrationManagerImpl implements MigrationManager
 {
@@ -133,6 +132,7 @@ public class MigrationManagerImpl implements MigrationManager
 
         SortedMap<Integer, String> pendingMigrations = classes.tailMap(current);
 
+        pendingMigrations.remove(current);
         Iterator<Integer> iterator = pendingMigrations.keySet().iterator();
 
         if (iterator.hasNext())
@@ -145,7 +145,9 @@ public class MigrationManagerImpl implements MigrationManager
 
             migration.up();
 
-            current = current();
+            runner.update(migration.getPendingSQL());
+
+            current = getMigrationVersion(className);
 
             recordVersion(current);
         }
@@ -157,20 +159,25 @@ public class MigrationManagerImpl implements MigrationManager
     {
         if (helper.checkIfTableExists(versioningTableName)) return;
 
-        log.debug("Schema is not versionned. Creating versionning table: " + versioningTableName + " (playing " + SchemaInitialization.class.getCanonicalName() + ")");
-        
-        Migration schemaInitialization = getMigration(SchemaInitialization.class.getCanonicalName());
-        
-        schemaInitialization.up();
-        
-        recordVersion(0);
+        log.info("Schema is not versionned. Creating versionning table: " + versioningTableName
+                + " (playing " + SchemaInitialization.class.getCanonicalName() + ")");
 
-        runner.update(helper.getPendingSQL());
+        Migration schemaInitialization = getMigration(SchemaInitialization.class.getCanonicalName());
+
+        schemaInitialization.up();
+
+        runner.update(schemaInitialization.getPendingSQL());
+
+        recordVersion(0);
     }
 
     public Integer migrate()
     {
         Integer current = current();
+        
+        if (current == null)
+            initialize();
+        
         Integer next = up();
 
         while (current != next)
@@ -203,7 +210,7 @@ public class MigrationManagerImpl implements MigrationManager
         Insert insert = new Insert(helper.getDialect());
         insert.setTableName(versioningTableName);
         insert.addColumn("version", version.toString());
-        insert.addColumn("datetime", Hibernate.TIMESTAMP.toString(now));
+        insert.addColumn("datetime","'" + Hibernate.TIMESTAMP.toString(now) + "'");
 
         runner.update(insert.toStatementString());
     }
@@ -212,7 +219,7 @@ public class MigrationManagerImpl implements MigrationManager
     {
         try
         {
-            if (checkIfImplements(Class.forName(className), MigrationBase.class)) return null;
+            if (MigrationUtils.checkIfImplements(Class.forName(className), MigrationBase.class)) return null;
 
             Version version = Class.forName(className).getAnnotation(Version.class);
 
@@ -230,7 +237,7 @@ public class MigrationManagerImpl implements MigrationManager
     {
         try
         {
-            if (checkIfImplements(Class.forName(className), MigrationBase.class)) return null;
+            if (MigrationUtils.checkIfImplements(Class.forName(className), MigrationBase.class)) return null;
 
             Version version = Class.forName(className).getAnnotation(Version.class);
 
@@ -245,18 +252,5 @@ public class MigrationManagerImpl implements MigrationManager
         }
 
         return null;
-    }
-
-    private boolean checkIfImplements(Class<?> clazz, Class<?> inter)
-    {
-        List<Class<?>> interfaces = Arrays.asList(clazz.getInterfaces());
-
-        if (interfaces.contains(inter)) return true;
-
-        Class<?> parent = clazz.getSuperclass();
-        while (parent != Object.class)
-            return checkIfImplements(parent, inter);
-
-        return false;
     }
 }

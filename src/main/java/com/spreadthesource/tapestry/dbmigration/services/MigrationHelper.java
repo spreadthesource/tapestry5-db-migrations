@@ -19,7 +19,7 @@ public interface MigrationHelper
     public Formatter getFormatter();
 
     /**
-     * Create a Table , add the Table creation SQL to pending SQL and also return SQL
+     * Generates SQL to create a table 
      * 
      * @param table
      * @return creation SQL
@@ -27,7 +27,7 @@ public interface MigrationHelper
     public String createTable(Table table);
 
     /**
-     * Drop a Table by adding SQL drop code to pending SQL and also return it
+     * Generates SQL to do drop Table query
      * 
      * @param tableName
      * @return drop table SQL
@@ -35,10 +35,4 @@ public interface MigrationHelper
     public String dropTable(String tableName);
 
     public boolean checkIfTableExists(String tableName);
-
-    /**
-     * Return pending SQL commands and clear the stack
-     */
-    public String[] getPendingSQL();
-
 }

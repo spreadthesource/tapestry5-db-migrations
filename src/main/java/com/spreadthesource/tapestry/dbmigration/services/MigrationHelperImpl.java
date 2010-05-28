@@ -44,8 +44,6 @@ public class MigrationHelperImpl implements MigrationHelper
 
     private Logger log;
 
-    private List<String> pendingSQL;
-
     public MigrationHelperImpl(Logger log)
     {
         this.configuration = new Configuration();
@@ -64,17 +62,12 @@ public class MigrationHelperImpl implements MigrationHelper
                 : FormatStyle.NONE).getFormatter();
 
         this.log = log;
-
-        this.pendingSQL = new ArrayList<String>();
-
     }
 
     public String dropTable(String tableName)
     {
         org.hibernate.mapping.Table hTable = new org.hibernate.mapping.Table(tableName);
         String dropSQL = hTable.sqlDropString(dialect, defaultCatalog, defaultSchema);
-
-        pendingSQL.add(dropSQL);
 
         return dropSQL;
     }
@@ -279,18 +272,6 @@ public class MigrationHelperImpl implements MigrationHelper
 
         String sql = hTable.sqlCreateString(dialect, p, defaultCatalog, defaultSchema);
 
-        pendingSQL.add(sql);
-
         return sql;
     }
-
-    public String[] getPendingSQL()
-    {
-        String[] toReturn = pendingSQL.toArray(new String[0]);
-
-        pendingSQL.clear();
-
-        return toReturn;
-    }
-
 }

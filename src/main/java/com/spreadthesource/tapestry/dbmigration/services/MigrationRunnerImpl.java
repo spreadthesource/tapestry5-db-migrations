@@ -88,6 +88,10 @@ public class MigrationRunnerImpl implements MigrationRunner
         }
 
     }
+    
+    public void update(List<String> sql) {
+        update(sql.toArray(new String[0]));
+    }
 
     public ResultSet query(String sql)
     {
