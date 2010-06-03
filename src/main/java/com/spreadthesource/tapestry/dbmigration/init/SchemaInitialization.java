@@ -1,11 +1,13 @@
 package com.spreadthesource.tapestry.dbmigration.init;
 
+import java.sql.Types;
+
 import org.apache.tapestry5.ioc.annotations.Inject;
 import org.apache.tapestry5.ioc.annotations.Symbol;
-import org.hibernate.Hibernate;
 
 import com.spreadthesource.tapestry.dbmigration.MigrationSymbolConstants;
 import com.spreadthesource.tapestry.dbmigration.annotations.Version;
+import com.spreadthesource.tapestry.dbmigration.data.Column;
 import com.spreadthesource.tapestry.dbmigration.data.Table;
 import com.spreadthesource.tapestry.dbmigration.migrations.MigrationBase;
 import com.spreadthesource.tapestry.dbmigration.services.MigrationHelper;
@@ -27,8 +29,11 @@ public class SchemaInitialization extends MigrationBase
     public void up()
     {
         Table versions = new Table(versioningTableName);
-        versions.addColumn("version", Hibernate.INTEGER);
-        versions.addColumn("datetime", Hibernate.TIMESTAMP);
+        
+        Column version = versions.addColumn("version", Types.INTEGER);
+        version.setPrimary(true);
+        
+        versions.addColumn("datetime", Types.TIMESTAMP);
         
         createTable(versions);
     }

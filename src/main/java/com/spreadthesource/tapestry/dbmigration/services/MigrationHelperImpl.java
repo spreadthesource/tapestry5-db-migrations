@@ -7,17 +7,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import javax.persistence.GenerationType;
+
 import org.hibernate.FetchMode;
 import org.hibernate.MappingException;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.Mapping;
+import org.hibernate.id.IdentifierGenerator;
+import org.hibernate.id.factory.DefaultIdentifierGeneratorFactory;
+import org.hibernate.id.factory.IdentifierGeneratorFactory;
 import org.hibernate.jdbc.util.FormatStyle;
 import org.hibernate.jdbc.util.Formatter;
-import org.hibernate.mapping.Value;
+import org.hibernate.mapping.KeyValue;
+import org.hibernate.mapping.PrimaryKey;
+import org.hibernate.mapping.RootClass;
+import org.hibernate.mapping.SimpleValue;
 import org.hibernate.mapping.ValueVisitor;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
+import org.hibernate.tool.hbm2ddl.TableMetadata;
 import org.hibernate.type.IntegerType;
 import org.hibernate.type.Type;
 import org.hibernate.util.PropertiesHelper;
@@ -32,9 +41,11 @@ public class MigrationHelperImpl implements MigrationHelper
 {
     private Configuration configuration;
 
-    private Dialect dialect;
-
     private ConnectionHelper connectionHelper;
+
+    private DatabaseMetadata databaseMetadata;
+
+    private Dialect dialect;
 
     private String defaultCatalog;
 
@@ -47,8 +58,8 @@ public class MigrationHelperImpl implements MigrationHelper
     public MigrationHelperImpl(Logger log)
     {
         this.configuration = new Configuration();
-        configuration.configure("hibernate.h2.cfg.xml");
-        // configuration.configure();
+        // configuration.configure("hibernate.h2.cfg.xml");
+        configuration.configure();
 
         Properties properties = configuration.getProperties();
 
@@ -100,15 +111,14 @@ public class MigrationHelperImpl implements MigrationHelper
     public boolean checkIfTableExists(String tableName)
     {
         Connection connection = null;
-        DatabaseMetadata meta;
 
         try
         {
             connectionHelper.prepare(true);
             connection = connectionHelper.getConnection();
-            meta = new DatabaseMetadata(connection, dialect);
+            databaseMetadata = new DatabaseMetadata(connection, dialect);
 
-            if (meta.isTable(tableName))
+            if (databaseMetadata.isTable(tableName))
             {
                 log.info("Table " + tableName + " exists, schema is under version control");
                 return true;
@@ -133,145 +143,117 @@ public class MigrationHelperImpl implements MigrationHelper
         return false;
     }
 
-    public String createTable(Table table)
+    public List<String> createTable(Table table)
     {
-        org.hibernate.mapping.Table hTable = new org.hibernate.mapping.Table(table.getName());
+        List<String> scripts = new ArrayList<String>();
+
+        String tableName = table.getName();
+
+        org.hibernate.mapping.Table hTable = new org.hibernate.mapping.Table(tableName);
 
         for (final Column column : table.getColumns())
         {
             org.hibernate.mapping.Column hColumn = new org.hibernate.mapping.Column(column
                     .getName());
-            String typeName = getDialect().getTypeName(column.getSQLType());
 
-            Value v = new Value()
+            String typeName;
+            Integer typeLength = column.getLength();
+
+            if (typeLength == null)
             {
-
-                public void setTypeUsingReflection(String className, String propertyName)
-                        throws MappingException
-                {
-                    // TODO Auto-generated method stub
-
-                }
-
-                public boolean isValid(Mapping mapping) throws MappingException
-                {
-                    // TODO Auto-generated method stub
-                    return false;
-                }
-
-                public boolean isSimpleValue()
-                {
-                    // TODO Auto-generated method stub
-                    return false;
-                }
-
-                public boolean isNullable()
-                {
-                    // TODO Auto-generated method stub
-                    return false;
-                }
-
-                public boolean isAlternateUniqueKey()
-                {
-                    // TODO Auto-generated method stub
-                    return false;
-                }
-
-                public boolean hasFormula()
-                {
-                    // TODO Auto-generated method stub
-                    return false;
-                }
-
-                public Type getType() throws MappingException
-                {
-                    return column.getType();
-                }
-
-                public org.hibernate.mapping.Table getTable()
-                {
-                    // TODO Auto-generated method stub
-                    return null;
-                }
-
-                public FetchMode getFetchMode()
-                {
-                    // TODO Auto-generated method stub
-                    return null;
-                }
-
-                public boolean[] getColumnUpdateability()
-                {
-                    // TODO Auto-generated method stub
-                    return null;
-                }
-
-                public int getColumnSpan()
-                {
-                    // TODO Auto-generated method stub
-                    return 0;
-                }
-
-                public Iterator getColumnIterator()
-                {
-                    // TODO Auto-generated method stub
-                    return null;
-                }
-
-                public boolean[] getColumnInsertability()
-                {
-                    // TODO Auto-generated method stub
-                    return null;
-                }
-
-                public void createForeignKey() throws MappingException
-                {
-                    // TODO Auto-generated method stub
-
-                }
-
-                public Object accept(ValueVisitor visitor)
-                {
-                    // TODO Auto-generated method stub
-                    return null;
-                }
-            };
-
-            hColumn.setValue(v);
-            // hColumn.setSqlType(typeName);
+                typeName = getDialect().getTypeName(column.getType());
+            }
+            else
+            {
+                typeName = getDialect().getTypeName(column.getType(), typeLength, 0, 0);
+            }
+            
+            hColumn.setSqlType(typeName);
             hColumn.setUnique(column.isUnique());
-
+            hColumn.setNullable(!column.isNotNull());
             hColumn.setLength(column.getLength());
+            hColumn.setScale(3);
 
             hTable.addColumn(hColumn);
+
+            if (column.isPrimary())
+            {
+                PrimaryKey primaryKey = new PrimaryKey();
+                primaryKey.addColumn(hColumn);
+
+                if (column.getIdentityGenerator() != null)
+                {
+                    SimpleValue idValue = new SimpleValue(hTable);
+                    idValue.setIdentifierGeneratorStrategy("identity");
+                    
+                    idValue.setTypeName(dialect.getTypeName(column.getType()));
+                    
+                    hColumn.setValue(idValue);
+                    
+
+                    hTable.setIdentifierValue(idValue);
+                }
+
+                hTable.setPrimaryKey(primaryKey);
+            }
         }
 
         // TODO : still have to know where Mapping are really involved and how much are they usefull
-        Mapping p = new Mapping()
-        {
-            public String getIdentifierPropertyName(String className) throws MappingException
+        Mapping p = new Mapping() {
+
+            public IdentifierGeneratorFactory getIdentifierGeneratorFactory()
             {
-                log.info("className:" + className);
-                return "id";
+                return new DefaultIdentifierGeneratorFactory();
             }
 
-            public Type getIdentifierType(String className) throws MappingException
+            public String getIdentifierPropertyName(String arg0) throws MappingException
             {
-                log.info("className:" + className);
-                return new IntegerType();
-            }
-
-            public Type getReferencedPropertyType(String className, String propertyName)
-                    throws MappingException
-            {
-                log.info("className:" + className + " propertyName:" + propertyName);
+                // TODO Auto-generated method stub
                 return null;
             }
 
+            public Type getIdentifierType(String arg0) throws MappingException
+            {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public Type getReferencedPropertyType(String arg0, String arg1) throws MappingException
+            {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
         };
 
-        String sql = hTable.sqlCreateString(dialect, p, defaultCatalog, defaultSchema);
+        boolean tableExists = checkIfTableExists(tableName);
 
-        return sql;
+        if (tableExists)
+        {
+            TableMetadata tableMetadata = databaseMetadata.getTableMetadata(
+                    tableName,
+                    defaultSchema,
+                    defaultCatalog,
+                    false);
+
+            Iterator subiter = hTable.sqlAlterStrings(
+                    dialect,
+                    p,
+                    tableMetadata,
+                    defaultCatalog,
+                    defaultSchema);
+
+            while (subiter.hasNext())
+            {
+                scripts.add((String) subiter.next());
+            }
+
+        }
+        else
+        {
+            scripts.add(hTable.sqlCreateString(dialect, p, defaultCatalog, defaultSchema));
+        }
+
+        return scripts;
     }
 }

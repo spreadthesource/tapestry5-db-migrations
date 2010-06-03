@@ -105,6 +105,7 @@ public class MigrationRunnerImpl implements MigrationRunner
             }
 
             log.debug("Executing query: " + formatted);
+                        
             if (doUpdate) return stmt.executeQuery(formatted);
 
         }

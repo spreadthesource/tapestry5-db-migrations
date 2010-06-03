@@ -1,8 +1,9 @@
 package com.spreadthesource.tapestry.dbmigration.test.migrations;
 
-import org.hibernate.Hibernate;
+import java.sql.Types;
 
 import com.spreadthesource.tapestry.dbmigration.annotations.Version;
+import com.spreadthesource.tapestry.dbmigration.data.Column;
 import com.spreadthesource.tapestry.dbmigration.data.Table;
 import com.spreadthesource.tapestry.dbmigration.migrations.MigrationBase;
 import com.spreadthesource.tapestry.dbmigration.services.MigrationHelper;
@@ -18,8 +19,11 @@ public class InitialSchema extends MigrationBase
     public void up()
     { 
         Table users = new Table("users");
-        users.addColumn("name", Hibernate.STRING);
-        users.addColumn("password", Hibernate.STRING);
+        Column name = users.addColumn("name", Types.CLOB);
+        name.setUnique(true);
+        
+        Column password = users.addColumn("password", Types.VARCHAR);
+        password.setNotNull(true);
         
         createTable(users);
     }

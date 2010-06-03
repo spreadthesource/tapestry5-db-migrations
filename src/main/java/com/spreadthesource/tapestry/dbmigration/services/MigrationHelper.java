@@ -1,5 +1,7 @@
 package com.spreadthesource.tapestry.dbmigration.services;
 
+import java.util.List;
+
 import org.hibernate.dialect.Dialect;
 import org.hibernate.jdbc.util.Formatter;
 
@@ -24,7 +26,7 @@ public interface MigrationHelper
      * @param table
      * @return creation SQL
      */
-    public String createTable(Table table);
+    public List<String> createTable(Table table);
 
     /**
      * Generates SQL to do drop Table query

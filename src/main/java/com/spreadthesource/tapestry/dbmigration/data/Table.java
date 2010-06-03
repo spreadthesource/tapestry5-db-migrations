@@ -1,10 +1,7 @@
 package com.spreadthesource.tapestry.dbmigration.data;
 
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.hibernate.type.NullableType;
 
 public class Table
 {
@@ -24,18 +21,18 @@ public class Table
      * @param columnType
      *            should be one of the referenced hibernate NullableType
      */
-    public Column addColumn(String columnName, NullableType columnType)
+    public Column addColumn(String columnName, int columnType)
     {
         Column c = new Column(columnName, columnType);
         columns.add(c);
         return c;
     }
-    
-    public Column addColumn(String columnName, NullableType columnType, int length)
+
+    public Column addColumn(String columnName, int columnType, int length)
     {
         Column c = this.addColumn(columnName, columnType);
         c.setLength(length);
-        
+
         return c;
     }
 

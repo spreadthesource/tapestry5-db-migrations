@@ -3,21 +3,26 @@ package com.spreadthesource.tapestry.dbmigration.data;
 import java.util.Map;
 
 import org.hibernate.cfg.Ejb3Column;
-import org.hibernate.type.NullableType;
 
 public class Column
 {
     private String name;
     
+    private String identityGenerator;
+    
+    private boolean notNull;
+    
+    private boolean primary;
+    
     private boolean unique;
     
-    private int length;
+    private Integer length;
     
     private Map<String, String> meta;
     
-    private NullableType type;
+    private int type;
     
-    public Column(String name, NullableType type) {
+    public Column(String name, int type) {
         this.name = name;
         this.type = type;
         
@@ -34,13 +39,13 @@ public class Column
         return meta;
     }
     
-    public NullableType getType() {
+    public int getType() {
         return type;
     }
     
-    public int getSQLType() {
-        return type.sqlType();
-    }
+    //public int getSQLType() {
+        //return type.sqlType();
+    //}
     
     public String getName() {
         return name;
@@ -53,7 +58,7 @@ public class Column
 
     public boolean isUnique()
     {
-        return unique;
+        return unique || primary;
     }
 
     public void setLength(int length)
@@ -61,8 +66,40 @@ public class Column
         this.length = length;
     }
 
-    public int getLength()
+    public Integer getLength()
     {
         return length;
+    }
+
+    public void setPrimary(boolean primary)
+    {
+        this.primary = primary;
+    }
+
+    public boolean isPrimary()
+    {
+        return primary;
+    }
+
+    public void setNotNull(boolean notNull)
+    {
+        this.notNull = notNull;
+    }
+
+    public boolean isNotNull()
+    {
+        return notNull;
+    }
+
+
+
+    public void setIdentityGenerator(String identityGenerator)
+    {
+        this.identityGenerator = identityGenerator;
+    }
+
+    public String getIdentityGenerator()
+    {
+        return identityGenerator;
     }
 }

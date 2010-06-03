@@ -129,7 +129,7 @@ public class MigrationManagerImpl implements MigrationManager
     public Integer up()
     {
         Integer current = current();
-
+        
         SortedMap<Integer, String> pendingMigrations = classes.tailMap(current);
 
         pendingMigrations.remove(current);
@@ -180,9 +180,10 @@ public class MigrationManagerImpl implements MigrationManager
         
         Integer next = up();
 
-        while (current != next)
+        while (!current.equals(next))
         {
             current = next;
+            
             next = up();
         }
 

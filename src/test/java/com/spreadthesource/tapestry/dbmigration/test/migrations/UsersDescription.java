@@ -1,6 +1,8 @@
 package com.spreadthesource.tapestry.dbmigration.test.migrations;
 
-import org.hibernate.Hibernate;
+
+
+import java.sql.Types;
 
 import com.spreadthesource.tapestry.dbmigration.annotations.Version;
 import com.spreadthesource.tapestry.dbmigration.data.Table;
@@ -18,7 +20,7 @@ public class UsersDescription extends MigrationBase
     public void up()
     {
         Table users = new Table("users");
-        users.addColumn("description", Hibernate.TEXT);
+        users.addColumn("description", Types.TIME);
         
         createTable(users);
     }
