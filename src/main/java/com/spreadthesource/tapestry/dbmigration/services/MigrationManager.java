@@ -37,4 +37,11 @@ public interface MigrationManager
      * @return new database version
      */
     public Integer migrate();
+    
+    /**
+     * Reset schema to migration 0
+     * 
+     * @return new database version
+     */
+    public Integer reset();
 }

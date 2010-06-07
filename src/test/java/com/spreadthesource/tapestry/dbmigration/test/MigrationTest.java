@@ -20,9 +20,12 @@ public class MigrationTest
         registry.performRegistryStartup();
 
         MigrationManager manager = registry.getService(MigrationManager.class);
-        
+
         manager.initialize();
+
         manager.up();
+        manager.up();
+        manager.down();
     }
 
 }

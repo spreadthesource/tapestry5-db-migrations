@@ -7,32 +7,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import javax.persistence.GenerationType;
-
-import org.hibernate.FetchMode;
 import org.hibernate.MappingException;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.Mapping;
-import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.factory.DefaultIdentifierGeneratorFactory;
 import org.hibernate.id.factory.IdentifierGeneratorFactory;
 import org.hibernate.jdbc.util.FormatStyle;
 import org.hibernate.jdbc.util.Formatter;
-import org.hibernate.mapping.KeyValue;
+import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.PrimaryKey;
-import org.hibernate.mapping.RootClass;
 import org.hibernate.mapping.SimpleValue;
-import org.hibernate.mapping.ValueVisitor;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.hibernate.tool.hbm2ddl.TableMetadata;
-import org.hibernate.type.IntegerType;
 import org.hibernate.type.Type;
 import org.hibernate.util.PropertiesHelper;
 import org.slf4j.Logger;
 
 import com.spreadthesource.tapestry.dbmigration.data.Column;
+import com.spreadthesource.tapestry.dbmigration.data.Constraint;
 import com.spreadthesource.tapestry.dbmigration.data.Table;
 import com.spreadthesource.tapestry.dbmigration.hibernate.ConnectionHelper;
 import com.spreadthesource.tapestry.dbmigration.hibernate.ManagedProviderConnectionHelper;
@@ -167,7 +161,7 @@ public class MigrationHelperImpl implements MigrationHelper
             {
                 typeName = getDialect().getTypeName(column.getType(), typeLength, 0, 0);
             }
-            
+
             hColumn.setSqlType(typeName);
             hColumn.setUnique(column.isUnique());
             hColumn.setNullable(!column.isNotNull());
@@ -185,11 +179,10 @@ public class MigrationHelperImpl implements MigrationHelper
                 {
                     SimpleValue idValue = new SimpleValue(hTable);
                     idValue.setIdentifierGeneratorStrategy("identity");
-                    
+
                     idValue.setTypeName(dialect.getTypeName(column.getType()));
-                    
+
                     hColumn.setValue(idValue);
-                    
 
                     hTable.setIdentifierValue(idValue);
                 }
@@ -199,7 +192,8 @@ public class MigrationHelperImpl implements MigrationHelper
         }
 
         // TODO : still have to know where Mapping are really involved and how much are they usefull
-        Mapping p = new Mapping() {
+        Mapping p = new Mapping()
+        {
 
             public IdentifierGeneratorFactory getIdentifierGeneratorFactory()
             {
@@ -223,7 +217,7 @@ public class MigrationHelperImpl implements MigrationHelper
                 // TODO Auto-generated method stub
                 return null;
             }
-            
+
         };
 
         boolean tableExists = checkIfTableExists(tableName);
@@ -254,6 +248,46 @@ public class MigrationHelperImpl implements MigrationHelper
             scripts.add(hTable.sqlCreateString(dialect, p, defaultCatalog, defaultSchema));
         }
 
+        for (Constraint constraint : table.getConstraints())
+        {
+            ForeignKey fk = new ForeignKey();
+            fk.setName(constraint.getName());
+
+            org.hibernate.mapping.Table hFKTable = new org.hibernate.mapping.Table(constraint
+                    .getForeignTable());
+            fk.setReferencedTable(hFKTable);
+
+            String fkScript = dialect.getAddForeignKeyConstraintString(
+                    constraint.getName(),
+                    constraint.getColumnsName().toArray(new String[0]),
+                    constraint.getForeignTable(),
+                    constraint.getForeignColumnsName().toArray(new String[0]),
+                    false);
+
+            StringBuffer buf = new StringBuffer("alter table ").append(
+                    hTable.getQualifiedName(dialect, defaultCatalog, defaultSchema)).append(
+                    fkScript);
+
+            scripts.add(buf.toString());
+
+        }
+
         return scripts;
+    }
+
+    private final static List<org.hibernate.mapping.Column> buildColumnsIdentifiers(
+            List<String> columnsName)
+    {
+        List<org.hibernate.mapping.Column> columnsIdentifiers = new ArrayList<org.hibernate.mapping.Column>();
+
+        for (String columnName : columnsName)
+        {
+            org.hibernate.mapping.Column c = new org.hibernate.mapping.Column();
+            c.setName(columnName);
+
+            columnsIdentifiers.add(c);
+        }
+
+        return columnsIdentifiers;
     }
 }

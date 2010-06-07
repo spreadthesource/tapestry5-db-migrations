@@ -114,6 +114,8 @@ public class MigrationManagerImpl implements MigrationManager
         Migration migration = getMigration(className);
 
         migration.down();
+        
+        runner.update(migration.getPendingSQL());
 
         SortedMap<Integer, String> previousMigrations = classes.headMap(current);
 

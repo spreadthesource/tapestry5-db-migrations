@@ -30,8 +30,11 @@ public class SchemaInitialization extends MigrationBase
     {
         Table versions = new Table(versioningTableName);
         
-        Column version = versions.addColumn("version", Types.INTEGER);
-        version.setPrimary(true);
+        Column id = versions.addColumn("id", Types.INTEGER, 11);
+        id.setPrimary(true);
+        id.setIdentityGenerator("identity");
+        
+        versions.addColumn("version", Types.INTEGER);
         
         versions.addColumn("datetime", Types.TIMESTAMP);
         

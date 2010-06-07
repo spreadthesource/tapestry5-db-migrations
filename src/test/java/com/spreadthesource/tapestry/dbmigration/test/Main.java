@@ -22,9 +22,12 @@ public class Main
         MigrationManager manager = registry.getService(MigrationManager.class);
 
         manager.initialize();
-        
+
         manager.migrate();
         
+        manager.reset();
+        
+
         System.out.println("Current version number is : " + manager.current());
     }
 }

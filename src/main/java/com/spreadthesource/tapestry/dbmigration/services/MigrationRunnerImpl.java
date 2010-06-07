@@ -148,6 +148,7 @@ public class MigrationRunnerImpl implements MigrationRunner
             if (haltOnError)
             {
                 log.error("Could not complete schema update", e);
+                
                 throw new TapestryException("SQL Exception in Migration Runner", e);
             }
 

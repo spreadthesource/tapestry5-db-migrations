@@ -9,10 +9,13 @@ public class Table
 
     private List<Column> columns;
 
+    private List<Constraint> constraints;
+
     public Table(String name)
     {
         this.name = name;
         this.columns = new ArrayList<Column>();
+        this.constraints = new ArrayList<Constraint>();
     }
 
     /**
@@ -36,18 +39,27 @@ public class Table
         return c;
     }
 
-    public void dropTable()
+    public Constraint addForeignKey(String name, String foreignTable)
     {
+        Constraint c = new Constraint(name, foreignTable);
 
+        constraints.add(c);
+
+        return c;
     }
 
     public String getName()
     {
-        return this.name;
+        return name;
     }
 
     public List<Column> getColumns()
     {
-        return this.columns;
+        return columns;
+    }
+
+    public List<Constraint> getConstraints()
+    {
+        return constraints;
     }
 }
