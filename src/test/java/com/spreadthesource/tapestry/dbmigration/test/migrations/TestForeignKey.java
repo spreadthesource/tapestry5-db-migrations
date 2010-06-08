@@ -25,23 +25,23 @@ public class TestForeignKey extends MigrationBase
         idA.setIdentityGenerator("identity");
 
         createTable(tableA);
-        
+
         Table tableB = new Table("tableB");
         Column idB = tableB.addColumn("id", Types.INTEGER, 11);
         tableB.addColumn("tableA_id", Types.INTEGER, 11);
         idB.setPrimary(true);
         idB.setIdentityGenerator("identity");
-        
+
         Constraint c = tableB.addForeignKey("fk", "tableA");
         c.addConstraint("tableA_id", "id");
-        
+
         createTable(tableB);
     }
 
     public void down()
     {
-        dropTable("tableA");
         dropTable("tableB");
+        dropTable("tableA");
     }
 
 }

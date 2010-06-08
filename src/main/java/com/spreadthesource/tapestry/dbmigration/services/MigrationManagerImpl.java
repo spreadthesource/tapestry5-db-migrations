@@ -87,13 +87,18 @@ public class MigrationManagerImpl implements MigrationManager
         JoinFragment from = q.getJoinFragment();
         from.addJoins(" " + versioningTableName, "");
 
-        q.addOrderBy("version DESC");
+        q.addOrderBy("id DESC");
 
         ResultSet r = runner.query(q.toQueryString());
 
         try
         {
-            if (r.next()) return r.getInt("version");
+            if (r.next()) {
+                Integer version = r.getInt("version");
+                log.debug("Current version is : " + version);
+                return version;
+            }
+                
         }
         catch (SQLException e)
         {
@@ -106,6 +111,9 @@ public class MigrationManagerImpl implements MigrationManager
     public Integer down()
     {
         Integer current = current();
+        if (current.equals(0))
+            return current;
+        
         String className = classes.get(current);
 
         if (className == null)
@@ -117,9 +125,12 @@ public class MigrationManagerImpl implements MigrationManager
         
         runner.update(migration.getPendingSQL());
 
-        SortedMap<Integer, String> previousMigrations = classes.headMap(current);
+        SortedMap<Integer, String> previousMigrations = (new TreeMap<Integer, String>(classes)).headMap(current);
 
-        if (previousMigrations.size() < 1) return current;
+        if (previousMigrations.size() < 1) {
+            recordVersion(0);
+            return 0;
+        }
 
         Integer previous = previousMigrations.lastKey();
 
@@ -132,7 +143,7 @@ public class MigrationManagerImpl implements MigrationManager
     {
         Integer current = current();
         
-        SortedMap<Integer, String> pendingMigrations = classes.tailMap(current);
+        SortedMap<Integer, String> pendingMigrations = (new TreeMap<Integer, String>(classes)).tailMap(current);
 
         pendingMigrations.remove(current);
         Iterator<Integer> iterator = pendingMigrations.keySet().iterator();
