@@ -180,7 +180,7 @@ public class MigrationHelperImpl implements MigrationHelper
                     SimpleValue idValue = new SimpleValue(hTable);
                     idValue.setIdentifierGeneratorStrategy("identity");
 
-                    idValue.setTypeName(dialect.getTypeName(column.getType()));
+                    idValue.setTypeName(dialect.getHibernateTypeName(column.getType()));
 
                     hColumn.setValue(idValue);
 

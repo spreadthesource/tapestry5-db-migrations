@@ -13,7 +13,6 @@ import org.apache.tapestry5.ioc.annotations.Inject;
 import org.apache.tapestry5.ioc.annotations.Symbol;
 import org.apache.tapestry5.ioc.services.ClassNameLocator;
 import org.hibernate.Hibernate;
-import org.hibernate.Session;
 import org.hibernate.sql.Insert;
 import org.hibernate.sql.JoinFragment;
 import org.hibernate.sql.QuerySelect;
@@ -43,7 +42,6 @@ public class MigrationManagerImpl implements MigrationManager
     public MigrationManagerImpl(
             Collection<String> packages,
             Logger logger,
-            Session session,
             ClassNameLocator classNameLocator,
             ObjectLocator objectLocator,
             MigrationRunner runner,
@@ -93,12 +91,13 @@ public class MigrationManagerImpl implements MigrationManager
 
         try
         {
-            if (r.next()) {
+            if (r.next())
+            {
                 Integer version = r.getInt("version");
                 log.debug("Current version is : " + version);
                 return version;
             }
-                
+
         }
         catch (SQLException e)
         {
@@ -111,9 +110,8 @@ public class MigrationManagerImpl implements MigrationManager
     public Integer down()
     {
         Integer current = current();
-        if (current.equals(0))
-            return current;
-        
+        if (current.equals(0)) return current;
+
         String className = classes.get(current);
 
         if (className == null)
@@ -122,12 +120,14 @@ public class MigrationManagerImpl implements MigrationManager
         Migration migration = getMigration(className);
 
         migration.down();
-        
+
         runner.update(migration.getPendingSQL());
 
-        SortedMap<Integer, String> previousMigrations = (new TreeMap<Integer, String>(classes)).headMap(current);
+        SortedMap<Integer, String> previousMigrations = (new TreeMap<Integer, String>(classes))
+                .headMap(current);
 
-        if (previousMigrations.size() < 1) {
+        if (previousMigrations.size() < 1)
+        {
             recordVersion(0);
             return 0;
         }
@@ -142,8 +142,9 @@ public class MigrationManagerImpl implements MigrationManager
     public Integer up()
     {
         Integer current = current();
-        
-        SortedMap<Integer, String> pendingMigrations = (new TreeMap<Integer, String>(classes)).tailMap(current);
+
+        SortedMap<Integer, String> pendingMigrations = (new TreeMap<Integer, String>(classes))
+                .tailMap(current);
 
         pendingMigrations.remove(current);
         Iterator<Integer> iterator = pendingMigrations.keySet().iterator();
@@ -187,16 +188,15 @@ public class MigrationManagerImpl implements MigrationManager
     public Integer migrate()
     {
         Integer current = current();
-        
-        if (current == null)
-            initialize();
-        
+
+        if (current == null) initialize();
+
         Integer next = up();
 
         while (!current.equals(next))
         {
             current = next;
-            
+
             next = up();
         }
 
@@ -224,7 +224,7 @@ public class MigrationManagerImpl implements MigrationManager
         Insert insert = new Insert(helper.getDialect());
         insert.setTableName(versioningTableName);
         insert.addColumn("version", version.toString());
-        insert.addColumn("datetime","'" + Hibernate.TIMESTAMP.toString(now) + "'");
+        insert.addColumn("datetime", "'" + Hibernate.TIMESTAMP.toString(now) + "'");
 
         runner.update(insert.toStatementString());
     }
@@ -233,7 +233,8 @@ public class MigrationManagerImpl implements MigrationManager
     {
         try
         {
-            if (MigrationUtils.checkIfImplements(Class.forName(className), MigrationBase.class)) return null;
+            if (MigrationUtils.checkIfImplements(Class.forName(className), MigrationBase.class))
+                return null;
 
             Version version = Class.forName(className).getAnnotation(Version.class);
 
@@ -251,7 +252,8 @@ public class MigrationManagerImpl implements MigrationManager
     {
         try
         {
-            if (MigrationUtils.checkIfImplements(Class.forName(className), MigrationBase.class)) return null;
+            if (MigrationUtils.checkIfImplements(Class.forName(className), MigrationBase.class))
+                return null;
 
             Version version = Class.forName(className).getAnnotation(Version.class);
 

@@ -51,9 +51,10 @@ public class Column
         return name;
     }
 
-    public void setUnique(boolean unique)
+    public Column setUnique(boolean unique)
     {
         this.unique = unique;
+        return this;
     }
 
     public boolean isUnique()
@@ -61,9 +62,10 @@ public class Column
         return unique || primary;
     }
 
-    public void setLength(int length)
+    public Column setLength(int length)
     {
         this.length = length;
+        return this;
     }
 
     public Integer getLength()
@@ -71,9 +73,10 @@ public class Column
         return length;
     }
 
-    public void setPrimary(boolean primary)
+    public Column setPrimary(boolean primary)
     {
         this.primary = primary;
+        return this;
     }
 
     public boolean isPrimary()
@@ -81,9 +84,10 @@ public class Column
         return primary;
     }
 
-    public void setNotNull(boolean notNull)
+    public Column setNotNull(boolean notNull)
     {
         this.notNull = notNull;
+        return this;
     }
 
     public boolean isNotNull()
@@ -92,10 +96,10 @@ public class Column
     }
 
 
-
-    public void setIdentityGenerator(String identityGenerator)
+    public Column setIdentityGenerator(String identityGenerator)
     {
         this.identityGenerator = identityGenerator;
+        return this;
     }
 
     public String getIdentityGenerator()
