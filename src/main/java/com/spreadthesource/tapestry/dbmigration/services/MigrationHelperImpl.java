@@ -7,6 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.tapestry5.hibernate.HibernateConfigurer;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.ioc.annotations.Symbol;
 import org.hibernate.MappingException;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
@@ -25,6 +28,7 @@ import org.hibernate.type.Type;
 import org.hibernate.util.PropertiesHelper;
 import org.slf4j.Logger;
 
+import com.spreadthesource.tapestry.dbmigration.MigrationSymbolConstants;
 import com.spreadthesource.tapestry.dbmigration.data.Column;
 import com.spreadthesource.tapestry.dbmigration.data.Constraint;
 import com.spreadthesource.tapestry.dbmigration.data.Table;
@@ -49,11 +53,22 @@ public class MigrationHelperImpl implements MigrationHelper
 
     private Logger log;
 
-    public MigrationHelperImpl(Logger log)
+    public MigrationHelperImpl(
+            List<HibernateConfigurer> hibConfigurers,
+            Logger log,
+            @Inject @Symbol(MigrationSymbolConstants.DEFAULT_HIBERNATE_CONFIGURATION) boolean defaultConfiguration)
     {
         this.configuration = new Configuration();
-        // configuration.configure("hibernate.h2.cfg.xml");
-        configuration.configure();
+
+        if (defaultConfiguration)
+        {
+            configuration.configure();
+        }
+
+        for (HibernateConfigurer configurer : hibConfigurers)
+        {
+            configurer.configure(configuration);
+        }
 
         Properties properties = configuration.getProperties();
 

@@ -55,5 +55,6 @@ public class MigrationModule
         configuration.add(MigrationSymbolConstants.DO_UPDATE, "true");
         configuration.add(MigrationSymbolConstants.HALT_ON_ERROR, "true");
         configuration.add(MigrationSymbolConstants.VERSIONING_TABLE_NAME, "versions");
+        configuration.add(MigrationSymbolConstants.DEFAULT_HIBERNATE_CONFIGURATION, "true");
     }
 }
