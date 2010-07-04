@@ -1,10 +1,10 @@
-package com.spreadthesource.tapestry.dbmigration.data;
+package com.spreadthesource.tapestry.dbmigration;
 
 import java.util.Map;
 
 import org.hibernate.cfg.Ejb3Column;
 
-public class Column
+public class ColumnDef
 {
     private String name;
     
@@ -22,7 +22,7 @@ public class Column
     
     private int type;
     
-    public Column(String name, int type) {
+    public ColumnDef(String name, int type) {
         this.name = name;
         this.type = type;
         
@@ -51,7 +51,7 @@ public class Column
         return name;
     }
 
-    public Column setUnique(boolean unique)
+    public ColumnDef setUnique(boolean unique)
     {
         this.unique = unique;
         return this;
@@ -62,7 +62,7 @@ public class Column
         return unique || primary;
     }
 
-    public Column setLength(int length)
+    public ColumnDef setLength(int length)
     {
         this.length = length;
         return this;
@@ -73,7 +73,7 @@ public class Column
         return length;
     }
 
-    public Column setPrimary(boolean primary)
+    public ColumnDef setPrimary(boolean primary)
     {
         this.primary = primary;
         return this;
@@ -84,7 +84,7 @@ public class Column
         return primary;
     }
 
-    public Column setNotNull(boolean notNull)
+    public ColumnDef setNotNull(boolean notNull)
     {
         this.notNull = notNull;
         return this;
@@ -96,7 +96,7 @@ public class Column
     }
 
 
-    public Column setIdentityGenerator(String identityGenerator)
+    public ColumnDef setIdentityGenerator(String identityGenerator)
     {
         this.identityGenerator = identityGenerator;
         return this;

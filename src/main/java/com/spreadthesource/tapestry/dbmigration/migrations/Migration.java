@@ -1,13 +1,13 @@
 package com.spreadthesource.tapestry.dbmigration.migrations;
 
-import java.util.List;
-
-
+/**
+ * Simple interface that defines a migration step.
+ * 
+ * @author ccordenier
+ */
 public interface Migration
 {
     public void up();
 
     public void down();
-    
-    public List<String> getPendingSQL();
 }

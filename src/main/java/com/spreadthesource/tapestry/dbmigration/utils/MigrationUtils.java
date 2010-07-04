@@ -17,4 +17,11 @@ public class MigrationUtils
 
         return false;
     }
+
+    public final static String buildPkColumnId(String tableName)
+    {
+        return (tableName.charAt(0) + tableName.substring(1).replaceAll("([A-Z])", "_$1"))
+                .toLowerCase()
+                + "_id";
+    }
 }

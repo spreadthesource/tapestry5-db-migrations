@@ -5,36 +5,56 @@ import java.util.List;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.jdbc.util.Formatter;
 
-import com.spreadthesource.tapestry.dbmigration.data.Table;
 import com.spreadthesource.tapestry.dbmigration.hibernate.ConnectionHelper;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraint;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.Drop;
 
 public interface MigrationHelper
 {
-    public Dialect getDialect();
+    Dialect getDialect();
 
-    public String getDefaultSchema();
+    String getDefaultSchema();
 
-    public String getDefaultCatalog();
+    String getDefaultCatalog();
 
-    public ConnectionHelper getConnectionHelper();
+    ConnectionHelper getConnectionHelper();
 
-    public Formatter getFormatter();
+    Formatter getFormatter();
 
-    /**
-     * Generates SQL to create a table 
-     * 
-     * @param table
-     * @return creation SQL
-     */
-    public List<String> createTable(Table table);
+    boolean checkIfTableExists(String tableName);
 
     /**
-     * Generates SQL to do drop Table query
+     * Call this method to your create table commands.
      * 
-     * @param tableName
-     * @return drop table SQL
+     * @param command
      */
-    public String dropTable(String tableName);
+    void createTable(CreateTable command);
 
-    public boolean checkIfTableExists(String tableName);
+    /**
+     * Call this method to add constraints on your schema.
+     * 
+     * @param constraint
+     */
+    void createConstraint(CreateConstraint constraint);
+
+    /**
+     * Call this method to create drop SQL strings.
+     * 
+     * @param dropCtx
+     */
+    void drop(Drop command);
+
+    /**
+     * Get all the SQL queries for the current migration unit.
+     * 
+     * @return
+     */
+    List<String> getPendingSql();
+
+    /**
+     * Remove all the current pending sql queries.
+     */
+    void reset();
+
 }

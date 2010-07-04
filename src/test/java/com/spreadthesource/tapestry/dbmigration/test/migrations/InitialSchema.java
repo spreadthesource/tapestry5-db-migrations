@@ -1,36 +1,70 @@
 package com.spreadthesource.tapestry.dbmigration.test.migrations;
 
-import java.sql.Types;
+import org.apache.tapestry5.ioc.annotations.Inject;
 
 import com.spreadthesource.tapestry.dbmigration.annotations.Version;
-import com.spreadthesource.tapestry.dbmigration.data.Column;
-import com.spreadthesource.tapestry.dbmigration.data.Table;
-import com.spreadthesource.tapestry.dbmigration.migrations.MigrationBase;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraint;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraintContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.Drop;
+import com.spreadthesource.tapestry.dbmigration.migrations.DropContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.Migration;
 import com.spreadthesource.tapestry.dbmigration.services.MigrationHelper;
 
 @Version(20100430)
-public class InitialSchema extends MigrationBase
+public class InitialSchema implements Migration
 {
-    public InitialSchema(MigrationHelper helper)
-    {
-        super(helper);
-    }
+    @Inject
+    private MigrationHelper helper;
 
     public void up()
-    { 
-        Table users = new Table("users");
-        Column name = users.addColumn("name", Types.CLOB);
-        name.setUnique(true);
-        
-        Column password = users.addColumn("password", Types.VARCHAR);
-        password.setNotNull(true);
-        
-        createTable(users);
+    {
+
+        // Table Authority
+        helper.createTable(new CreateTable()
+        {
+            public void run(CreateTableContext ctx)
+            {
+                ctx.setName("Authority");
+                ctx.addString("label").setUnique(true);
+                ctx.addText("description");
+                ctx.addText("id");
+            }
+        });
+
+        // Table Authority
+        helper.createTable(new CreateTable()
+        {
+            public void run(CreateTableContext ctx)
+            {
+                ctx.setName("User");
+                ctx.addString("username").setUnique(true).setNotNull(true);
+                ctx.addString("password").setNotNull(true);
+            }
+        });
+
+        // Add constraints
+        helper.createConstraint(new CreateConstraint()
+        {
+            public void run(CreateConstraintContext ctx)
+            {
+                ctx.setName("Authority");
+                ctx.setUnique("AuthorityUnicity", "label", "id");
+            }
+        });
+
     }
 
     public void down()
     {
-        dropTable("users");
+        helper.drop(new Drop()
+        {
+            public void run(DropContext ctx)
+            {
+                ctx.dropTable("User");
+                ctx.dropTable("Authority");
+            }
+        });
     }
-
 }

@@ -22,7 +22,6 @@ import com.spreadthesource.tapestry.dbmigration.MigrationSymbolConstants;
 import com.spreadthesource.tapestry.dbmigration.annotations.Version;
 import com.spreadthesource.tapestry.dbmigration.init.SchemaInitialization;
 import com.spreadthesource.tapestry.dbmigration.migrations.Migration;
-import com.spreadthesource.tapestry.dbmigration.migrations.MigrationBase;
 import com.spreadthesource.tapestry.dbmigration.utils.MigrationUtils;
 
 public class MigrationManagerImpl implements MigrationManager
@@ -121,7 +120,9 @@ public class MigrationManagerImpl implements MigrationManager
 
         migration.down();
 
-        runner.update(migration.getPendingSQL());
+        runner.update(helper.getPendingSql());
+
+        helper.reset();
 
         SortedMap<Integer, String> previousMigrations = (new TreeMap<Integer, String>(classes))
                 .headMap(current);
@@ -159,7 +160,9 @@ public class MigrationManagerImpl implements MigrationManager
 
             migration.up();
 
-            runner.update(migration.getPendingSQL());
+            runner.update(helper.getPendingSql());
+
+            helper.reset();
 
             current = getMigrationVersion(className);
 
@@ -180,7 +183,9 @@ public class MigrationManagerImpl implements MigrationManager
 
         schemaInitialization.up();
 
-        runner.update(schemaInitialization.getPendingSQL());
+        runner.update(helper.getPendingSql());
+
+        helper.reset();
 
         recordVersion(0);
     }
@@ -233,14 +238,18 @@ public class MigrationManagerImpl implements MigrationManager
     {
         try
         {
-            if (MigrationUtils.checkIfImplements(Class.forName(className), MigrationBase.class))
+            if (!MigrationUtils.checkIfImplements(Class.forName(className), Migration.class))
                 return null;
 
             Version version = Class.forName(className).getAnnotation(Version.class);
 
             if (version == null) return null;
 
-            return version.value();
+            Integer v = version.value();
+            if (v == 0) { throw new IllegalArgumentException(
+                    "'O' cannot be used as a version number, as it is already in use by the framework itself."); }
+
+            return v;
         }
         catch (ClassNotFoundException e)
         {
@@ -252,7 +261,7 @@ public class MigrationManagerImpl implements MigrationManager
     {
         try
         {
-            if (MigrationUtils.checkIfImplements(Class.forName(className), MigrationBase.class))
+            if (!MigrationUtils.checkIfImplements(Class.forName(className), Migration.class))
                 return null;
 
             Version version = Class.forName(className).getAnnotation(Version.class);

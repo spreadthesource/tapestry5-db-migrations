@@ -32,6 +32,7 @@ public class MigrationModule
         binder.bind(MigrationManager.class, MigrationManagerImpl.class);
         binder.bind(MigrationRunner.class, MigrationRunnerImpl.class);
         binder.bind(MigrationHelper.class, MigrationHelperImpl.class);
+        binder.bind(PrimaryKeyStrategy.class, DefaultPrimaryKeyStrategy.class);
     }
 
     @Match("MigrationManager")

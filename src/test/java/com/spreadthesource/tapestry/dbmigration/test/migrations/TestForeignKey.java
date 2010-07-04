@@ -1,47 +1,69 @@
 package com.spreadthesource.tapestry.dbmigration.test.migrations;
 
-import java.sql.Types;
+import org.apache.tapestry5.ioc.annotations.Inject;
 
 import com.spreadthesource.tapestry.dbmigration.annotations.Version;
-import com.spreadthesource.tapestry.dbmigration.data.Column;
-import com.spreadthesource.tapestry.dbmigration.data.Constraint;
-import com.spreadthesource.tapestry.dbmigration.data.Table;
-import com.spreadthesource.tapestry.dbmigration.migrations.MigrationBase;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraint;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraintContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.Drop;
+import com.spreadthesource.tapestry.dbmigration.migrations.DropContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.Migration;
 import com.spreadthesource.tapestry.dbmigration.services.MigrationHelper;
 
 @Version(20100604)
-public class TestForeignKey extends MigrationBase
+public class TestForeignKey implements Migration
 {
-    public TestForeignKey(MigrationHelper helper)
-    {
-        super(helper);
-    }
+
+    @Inject
+    private MigrationHelper helper;
 
     public void up()
     {
-        Table tableA = new Table("tableA");
-        Column idA = tableA.addColumn("id", Types.INTEGER, 11);
-        idA.setPrimary(true);
-        idA.setIdentityGenerator("identity");
+        helper.createTable(new CreateTable()
+        {
+            public void run(CreateTableContext ctx)
+            {
+                ctx.setName("tableA");
+                ctx.addInteger("id").setPrimary(true).setIdentityGenerator("identity");
+            }
+        });
 
-        createTable(tableA);
+        helper.createTable(new CreateTable()
+        {
+            public void run(CreateTableContext ctx)
+            {
+                ctx.setName("tableB");
+                ctx.addInteger("id").setPrimary(true).setIdentityGenerator("identity");
+                ctx.addInteger("tableA_id");
+            }
+        });
 
-        Table tableB = new Table("tableB");
-        Column idB = tableB.addColumn("id", Types.INTEGER, 11);
-        tableB.addColumn("tableA_id", Types.INTEGER, 11);
-        idB.setPrimary(true);
-        idB.setIdentityGenerator("identity");
-
-        Constraint c = tableB.addForeignKey("fk", "tableA");
-        c.addConstraint("tableA_id", "id");
-
-        createTable(tableB);
+        helper.createConstraint(new CreateConstraint()
+        {
+            public void run(CreateConstraintContext ctx)
+            {
+                ctx.setName("tableB");
+                ctx.setForeignKey("fk", "tableA", new String[]
+                { "id" }, new String[]
+                { "id" });
+            }
+        });
     }
 
     public void down()
     {
-        dropTable("tableB");
-        dropTable("tableA");
+        helper.drop(new Drop()
+        {
+            public void run(DropContext ctx)
+            {
+                // drop the constaint and the targeted table
+                ctx.dropForeignKey("tableB", "fk");
+                ctx.dropTable("tableA");
+            }
+
+        });
     }
 
 }

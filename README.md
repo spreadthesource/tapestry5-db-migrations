@@ -13,17 +13,47 @@ This is an insight of what a couple of migrations can looks like.
 	@Version(20100510)
 	public class MyModel implements Migration
 	{
+	
+	    @Inject
+    	private MigrationHelper helper;
+	
 	    public void up()
 	    {
-	        helper.createTable("users");
-	        helper.addPrimaryKey("users", "id", Types.INTEGER);
-	        helper.addColumn("users", "name", Types.VARCHAR);
-	        helper.addColumn("users", "password", Types.VARCHAR);
+	        // Table Authority
+	        helper.createTable(new CreateTable()
+	        {
+	            public void run(CreateTableContext ctx)
+	            {
+	                ctx.setName("Authority");
+	                ctx.addString("label").setUnique(true);
+	                ctx.addText("description");
+	                ctx.addText("id");
+	            }
+	        });
+	        
+	        // Table Authority
+	        helper.createTable(new CreateTable()
+	        {
+	            public void run(CreateTableContext ctx)
+	            {
+	                ctx.setName("User");
+	                ctx.addString("username").setUnique(true).setNotNull(true);
+	                ctx.addString("password").setNotNull(true);
+	            }
+	        });
+		        
 	    }
 	
 	    public void down()
 	    {
-	        helper.dropTable("users");
+	        helper.drop(new Drop()
+	        {
+	            public void run(DropContext ctx)
+	            {
+	                ctx.dropTable("User");
+	                ctx.dropTable("Authority");
+	            }
+	        });
 	    }
 	}
 	
@@ -56,7 +86,7 @@ To use this plugin, add the following dependency in your `pom.xml`.
 		<dependency>
 			<groupId>com.spreadthesource</groupId>
 			<artifactId>tapestry5-db-migration</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>0.1.1-SNAPSHOT</version>
 		</dependency>
 		...
 	</dependencies>
@@ -87,7 +117,6 @@ To use this plugin, add the following dependency in your `pom.xml`.
 
 * Blog: http://spreadthesource.com
 * Twitter: http://twitter.com/spreadthesource
-
 
 ## License
 

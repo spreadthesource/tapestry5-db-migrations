@@ -3,40 +3,40 @@ package com.spreadthesource.tapestry.dbmigration.services;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
 import org.apache.tapestry5.hibernate.HibernateConfigurer;
 import org.apache.tapestry5.ioc.annotations.Inject;
 import org.apache.tapestry5.ioc.annotations.Symbol;
-import org.hibernate.MappingException;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.Mapping;
-import org.hibernate.id.factory.DefaultIdentifierGeneratorFactory;
-import org.hibernate.id.factory.IdentifierGeneratorFactory;
 import org.hibernate.jdbc.util.FormatStyle;
 import org.hibernate.jdbc.util.Formatter;
-import org.hibernate.mapping.ForeignKey;
-import org.hibernate.mapping.PrimaryKey;
-import org.hibernate.mapping.SimpleValue;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
-import org.hibernate.tool.hbm2ddl.TableMetadata;
-import org.hibernate.type.Type;
 import org.hibernate.util.PropertiesHelper;
 import org.slf4j.Logger;
 
 import com.spreadthesource.tapestry.dbmigration.MigrationSymbolConstants;
-import com.spreadthesource.tapestry.dbmigration.data.Column;
-import com.spreadthesource.tapestry.dbmigration.data.Constraint;
-import com.spreadthesource.tapestry.dbmigration.data.Table;
 import com.spreadthesource.tapestry.dbmigration.hibernate.ConnectionHelper;
 import com.spreadthesource.tapestry.dbmigration.hibernate.ManagedProviderConnectionHelper;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraint;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraintContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraintContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.Drop;
+import com.spreadthesource.tapestry.dbmigration.migrations.DropContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.DropContextImpl;
 
 public class MigrationHelperImpl implements MigrationHelper
 {
+
+    @Inject
+    private PrimaryKeyStrategy pkStrategy;
+
     private Configuration configuration;
 
     private ConnectionHelper connectionHelper;
@@ -52,6 +52,8 @@ public class MigrationHelperImpl implements MigrationHelper
     private Formatter formatter;
 
     private Logger log;
+
+    private List<String> pendingSql = new ArrayList<String>();
 
     public MigrationHelperImpl(
             List<HibernateConfigurer> hibConfigurers,
@@ -82,14 +84,6 @@ public class MigrationHelperImpl implements MigrationHelper
                 : FormatStyle.NONE).getFormatter();
 
         this.log = log;
-    }
-
-    public String dropTable(String tableName)
-    {
-        org.hibernate.mapping.Table hTable = new org.hibernate.mapping.Table(tableName);
-        String dropSQL = hTable.sqlDropString(dialect, defaultCatalog, defaultSchema);
-
-        return dropSQL;
     }
 
     public Dialect getDialect()
@@ -152,157 +146,37 @@ public class MigrationHelperImpl implements MigrationHelper
         return false;
     }
 
-    public List<String> createTable(Table table)
+    public void createTable(CreateTable command)
     {
-        List<String> scripts = new ArrayList<String>();
-
-        String tableName = table.getName();
-
-        org.hibernate.mapping.Table hTable = new org.hibernate.mapping.Table(tableName);
-
-        for (final Column column : table.getColumns())
-        {
-            org.hibernate.mapping.Column hColumn = new org.hibernate.mapping.Column(column
-                    .getName());
-
-            String typeName;
-            Integer typeLength = column.getLength();
-
-            if (typeLength == null)
-            {
-                typeName = getDialect().getTypeName(column.getType());
-            }
-            else
-            {
-                typeName = getDialect().getTypeName(column.getType(), typeLength, 0, 0);
-            }
-
-            hColumn.setSqlType(typeName);
-            hColumn.setUnique(column.isUnique());
-            hColumn.setNullable(!column.isNotNull());
-            hColumn.setLength(column.getLength());
-            hColumn.setScale(3);
-
-            hTable.addColumn(hColumn);
-
-            if (column.isPrimary())
-            {
-                PrimaryKey primaryKey = new PrimaryKey();
-                primaryKey.addColumn(hColumn);
-
-                if (column.getIdentityGenerator() != null)
-                {
-                    SimpleValue idValue = new SimpleValue(hTable);
-                    idValue.setIdentifierGeneratorStrategy("identity");
-
-                    idValue.setTypeName(dialect.getHibernateTypeName(column.getType()));
-
-                    hColumn.setValue(idValue);
-
-                    hTable.setIdentifierValue(idValue);
-                }
-
-                hTable.setPrimaryKey(primaryKey);
-            }
-        }
-
-        // TODO : still have to know where Mapping are really involved and how much are they usefull
-        Mapping p = new Mapping()
-        {
-
-            public IdentifierGeneratorFactory getIdentifierGeneratorFactory()
-            {
-                return new DefaultIdentifierGeneratorFactory();
-            }
-
-            public String getIdentifierPropertyName(String arg0) throws MappingException
-            {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public Type getIdentifierType(String arg0) throws MappingException
-            {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public Type getReferencedPropertyType(String arg0, String arg1) throws MappingException
-            {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-        };
-
-        boolean tableExists = checkIfTableExists(tableName);
-
-        if (tableExists)
-        {
-            TableMetadata tableMetadata = databaseMetadata.getTableMetadata(
-                    tableName,
-                    defaultSchema,
-                    defaultCatalog,
-                    false);
-
-            Iterator subiter = hTable.sqlAlterStrings(
-                    dialect,
-                    p,
-                    tableMetadata,
-                    defaultCatalog,
-                    defaultSchema);
-
-            while (subiter.hasNext())
-            {
-                scripts.add((String) subiter.next());
-            }
-
-        }
-        else
-        {
-            scripts.add(hTable.sqlCreateString(dialect, p, defaultCatalog, defaultSchema));
-        }
-
-        for (Constraint constraint : table.getConstraints())
-        {
-            ForeignKey fk = new ForeignKey();
-            fk.setName(constraint.getName());
-
-            org.hibernate.mapping.Table hFKTable = new org.hibernate.mapping.Table(constraint
-                    .getForeignTable());
-            fk.setReferencedTable(hFKTable);
-
-            String fkScript = dialect.getAddForeignKeyConstraintString(
-                    constraint.getName(),
-                    constraint.getColumnsName().toArray(new String[0]),
-                    constraint.getForeignTable(),
-                    constraint.getForeignColumnsName().toArray(new String[0]),
-                    false);
-
-            StringBuffer buf = new StringBuffer("alter table ").append(
-                    hTable.getQualifiedName(dialect, defaultCatalog, defaultSchema)).append(
-                    fkScript);
-
-            scripts.add(buf.toString());
-
-        }
-
-        return scripts;
+        CreateTableContext createContext = new CreateTableContextImpl(dialect, defaultCatalog,
+                defaultSchema, pkStrategy);
+        command.run(createContext);
+        pendingSql.addAll(createContext.getQueries());
     }
 
-    private final static List<org.hibernate.mapping.Column> buildColumnsIdentifiers(
-            List<String> columnsName)
+    public void createConstraint(CreateConstraint command)
     {
-        List<org.hibernate.mapping.Column> columnsIdentifiers = new ArrayList<org.hibernate.mapping.Column>();
-
-        for (String columnName : columnsName)
-        {
-            org.hibernate.mapping.Column c = new org.hibernate.mapping.Column();
-            c.setName(columnName);
-
-            columnsIdentifiers.add(c);
-        }
-
-        return columnsIdentifiers;
+        CreateConstraintContext ctx = new CreateConstraintContextImpl(dialect, defaultCatalog,
+                defaultSchema);
+        command.run(ctx);
+        pendingSql.addAll(ctx.getQueries());
     }
+
+    public void drop(Drop command)
+    {
+        DropContext ctx = new DropContextImpl(dialect, defaultCatalog, defaultSchema);
+        command.run(ctx);
+        pendingSql.addAll(ctx.getQueries());
+    }
+
+    public List<String> getPendingSql()
+    {
+        return pendingSql;
+    }
+
+    public void reset()
+    {
+        this.pendingSql.clear();
+    }
+
 }
