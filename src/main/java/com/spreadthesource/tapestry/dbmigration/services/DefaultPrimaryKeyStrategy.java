@@ -1,9 +1,8 @@
 package com.spreadthesource.tapestry.dbmigration.services;
 
+import java.sql.Types;
 import java.util.Arrays;
 import java.util.List;
-
-import org.hsqldb.Types;
 
 import com.spreadthesource.tapestry.dbmigration.ColumnDef;
 import com.spreadthesource.tapestry.dbmigration.utils.MigrationUtils;
