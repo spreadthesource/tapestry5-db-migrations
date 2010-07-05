@@ -1,7 +1,7 @@
 package com.spreadthesource.tapestry.dbmigration.migrations;
 
 /**
- * Every command represent an atomic action on the database.
+ * Every command represents a list of consistent queries to execute on the database.
  * 
  * @author ccordenier
  * @param <T>

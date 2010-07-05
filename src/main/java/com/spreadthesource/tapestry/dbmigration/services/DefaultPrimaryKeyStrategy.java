@@ -12,9 +12,14 @@ public class DefaultPrimaryKeyStrategy implements PrimaryKeyStrategy
 
     public List<ColumnDef> getPrimaryKeys(String tableName)
     {
-        ColumnDef pk = new ColumnDef(MigrationUtils.buildPkColumnId(tableName), Types.BIGINT).setUnique(
-                true).setPrimary(true).setIdentityGenerator("identity");
+        ColumnDef pk = new ColumnDef(MigrationUtils.buildPkColumnId(tableName), Types.BIGINT)
+                .setUnique(true).setPrimary(true).setIdentityGenerator("identity");
         return Arrays.asList(pk);
+    }
+
+    public String buildColumnId(String tableName)
+    {
+        return MigrationUtils.buildPkColumnId(tableName);
     }
 
 }

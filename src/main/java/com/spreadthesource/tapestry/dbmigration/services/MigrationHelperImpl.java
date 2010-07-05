@@ -30,6 +30,12 @@ import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContextImp
 import com.spreadthesource.tapestry.dbmigration.migrations.Drop;
 import com.spreadthesource.tapestry.dbmigration.migrations.DropContext;
 import com.spreadthesource.tapestry.dbmigration.migrations.DropContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.JoinTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.JoinTableContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.JoinTableContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTableContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTableContextImpl;
 
 public class MigrationHelperImpl implements MigrationHelper
 {
@@ -154,6 +160,41 @@ public class MigrationHelperImpl implements MigrationHelper
         pendingSql.addAll(createContext.getQueries());
     }
 
+    public void updateTable(UpdateTable command)
+    {
+        Connection connection = null;
+
+        try
+        {
+            // Get the database metadatas
+            connectionHelper.prepare(true);
+            connection = connectionHelper.getConnection();
+            databaseMetadata = new DatabaseMetadata(connection, dialect);
+
+            // Update table
+            UpdateTableContext updateContext = new UpdateTableContextImpl(dialect, defaultCatalog,
+                    defaultSchema, databaseMetadata);
+            command.run(updateContext);
+            pendingSql.addAll(updateContext.getQueries());
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException("could not get database metadata", sqle);
+        }
+        finally
+        {
+            try
+            {
+                connectionHelper.release();
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException("Error when closing connection", e);
+            }
+        }
+
+    }
+
     public void createConstraint(CreateConstraint command)
     {
         CreateConstraintContext ctx = new CreateConstraintContextImpl(dialect, defaultCatalog,
@@ -165,6 +206,14 @@ public class MigrationHelperImpl implements MigrationHelper
     public void drop(Drop command)
     {
         DropContext ctx = new DropContextImpl(dialect, defaultCatalog, defaultSchema);
+        command.run(ctx);
+        pendingSql.addAll(ctx.getQueries());
+    }
+
+    public void join(JoinTable command)
+    {
+        JoinTableContext ctx = new JoinTableContextImpl(dialect, defaultCatalog, defaultSchema,
+                pkStrategy);
         command.run(ctx);
         pendingSql.addAll(ctx.getQueries());
     }

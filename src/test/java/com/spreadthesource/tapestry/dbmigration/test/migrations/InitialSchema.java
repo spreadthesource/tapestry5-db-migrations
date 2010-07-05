@@ -9,6 +9,8 @@ import com.spreadthesource.tapestry.dbmigration.migrations.CreateTable;
 import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContext;
 import com.spreadthesource.tapestry.dbmigration.migrations.Drop;
 import com.spreadthesource.tapestry.dbmigration.migrations.DropContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.JoinTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.JoinTableContext;
 import com.spreadthesource.tapestry.dbmigration.migrations.Migration;
 import com.spreadthesource.tapestry.dbmigration.services.MigrationHelper;
 
@@ -54,6 +56,15 @@ public class InitialSchema implements Migration
             }
         });
 
+        helper.join(new JoinTable()
+        {
+
+            public void run(JoinTableContext ctx)
+            {
+                ctx.join("User", "Authority");
+            }
+        });
+
     }
 
     public void down()
@@ -62,6 +73,7 @@ public class InitialSchema implements Migration
         {
             public void run(DropContext ctx)
             {
+                ctx.dropTable("UserAuthority");
                 ctx.dropTable("User");
                 ctx.dropTable("Authority");
             }

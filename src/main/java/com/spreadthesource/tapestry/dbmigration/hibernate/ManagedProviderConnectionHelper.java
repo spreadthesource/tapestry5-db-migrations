@@ -1,12 +1,12 @@
 package com.spreadthesource.tapestry.dbmigration.hibernate;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Properties;
+
 import org.hibernate.connection.ConnectionProvider;
 import org.hibernate.connection.ConnectionProviderFactory;
 import org.hibernate.util.JDBCExceptionReporter;
-
-import java.util.Properties;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 public class ManagedProviderConnectionHelper implements ConnectionHelper
 {

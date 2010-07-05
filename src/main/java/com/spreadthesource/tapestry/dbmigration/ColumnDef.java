@@ -4,28 +4,35 @@ import java.util.Map;
 
 import org.hibernate.cfg.Ejb3Column;
 
+/**
+ * This class is a simple wrapper used to create the real Hibernat Column element. It must contain
+ * all the data needed to create a column.
+ * 
+ * @author ccordenier
+ */
 public class ColumnDef
 {
     private String name;
-    
+
     private String identityGenerator;
-    
+
     private boolean notNull;
-    
+
     private boolean primary;
-    
+
     private boolean unique;
-    
+
     private Integer length;
-    
+
     private Map<String, String> meta;
-    
+
     private int type;
-    
-    public ColumnDef(String name, int type) {
+
+    public ColumnDef(String name, int type)
+    {
         this.name = name;
         this.type = type;
-        
+
         this.length = Ejb3Column.DEFAULT_COLUMN_LENGTH;
     }
 
@@ -38,16 +45,18 @@ public class ColumnDef
     {
         return meta;
     }
-    
-    public int getType() {
+
+    public int getType()
+    {
         return type;
     }
-    
-    //public int getSQLType() {
-        //return type.sqlType();
-    //}
-    
-    public String getName() {
+
+    // public int getSQLType() {
+    // return type.sqlType();
+    // }
+
+    public String getName()
+    {
         return name;
     }
 
@@ -94,7 +103,6 @@ public class ColumnDef
     {
         return notNull;
     }
-
 
     public ColumnDef setIdentityGenerator(String identityGenerator)
     {

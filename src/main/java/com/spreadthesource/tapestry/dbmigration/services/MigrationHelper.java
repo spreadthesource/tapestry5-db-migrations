@@ -9,6 +9,8 @@ import com.spreadthesource.tapestry.dbmigration.hibernate.ConnectionHelper;
 import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraint;
 import com.spreadthesource.tapestry.dbmigration.migrations.CreateTable;
 import com.spreadthesource.tapestry.dbmigration.migrations.Drop;
+import com.spreadthesource.tapestry.dbmigration.migrations.JoinTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTable;
 
 public interface MigrationHelper
 {
@@ -32,6 +34,13 @@ public interface MigrationHelper
     void createTable(CreateTable command);
 
     /**
+     * Call this method to update a table definition.
+     * 
+     * @param command
+     */
+    void updateTable(UpdateTable command);
+
+    /**
      * Call this method to add constraints on your schema.
      * 
      * @param constraint
@@ -44,6 +53,13 @@ public interface MigrationHelper
      * @param dropCtx
      */
     void drop(Drop command);
+
+    /**
+     * Call this method to join tables.
+     * 
+     * @param command
+     */
+    void join(JoinTable command);
 
     /**
      * Get all the SQL queries for the current migration unit.

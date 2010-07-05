@@ -11,5 +11,7 @@ public interface PrimaryKeyStrategy
 {
 
     List<ColumnDef> getPrimaryKeys(String tableName);
+    
+    String buildColumnId(String tableName);
 
 }
