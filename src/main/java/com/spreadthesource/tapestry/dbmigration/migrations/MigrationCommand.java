@@ -7,7 +7,7 @@ package com.spreadthesource.tapestry.dbmigration.migrations;
  * @param <T>
  *            Each command will be associated to a execution context.
  */
-interface MigrationCommand<T extends MigrationContext>
+public interface MigrationCommand<T extends MigrationContext>
 {
 
     void run(T ctx);

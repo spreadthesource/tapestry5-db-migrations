@@ -45,16 +45,15 @@ public class MigrationRunnerImpl implements MigrationRunner
 
     public MigrationRunnerImpl(Logger log,
             @Symbol(MigrationSymbolConstants.DO_UPDATE) boolean doUpdate,
-            @Symbol(MigrationSymbolConstants.HALT_ON_ERROR) boolean haltOnError,
-            MigrationHelper helper)
+            @Symbol(MigrationSymbolConstants.HALT_ON_ERROR) boolean haltOnError, DbSource dbSource)
     {
         this.exceptions = new ArrayList<Exception>();
         this.doUpdate = doUpdate;
         this.haltOnError = haltOnError;
         this.log = log;
 
-        this.formatter = helper.getFormatter();
-        this.connectionHelper = helper.getConnectionHelper();
+        this.formatter = dbSource.getFormatter();
+        this.connectionHelper = dbSource.getConnectionHelper();
     }
 
     public void update(String... sql)
@@ -88,8 +87,9 @@ public class MigrationRunnerImpl implements MigrationRunner
         }
 
     }
-    
-    public void update(List<String> sql) {
+
+    public void update(List<String> sql)
+    {
         update(sql.toArray(new String[0]));
     }
 
@@ -105,7 +105,7 @@ public class MigrationRunnerImpl implements MigrationRunner
             }
 
             log.debug("Executing query: " + formatted);
-                        
+
             if (doUpdate) return stmt.executeQuery(formatted);
 
         }
@@ -148,7 +148,7 @@ public class MigrationRunnerImpl implements MigrationRunner
             if (haltOnError)
             {
                 log.error("Could not complete schema update", e);
-                
+
                 throw new TapestryException("SQL Exception in Migration Runner", e);
             }
 

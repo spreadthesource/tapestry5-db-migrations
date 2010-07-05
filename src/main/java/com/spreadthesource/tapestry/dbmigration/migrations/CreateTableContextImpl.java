@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.Mapping;
 import org.hibernate.mapping.PrimaryKey;
 import org.hibernate.mapping.SimpleValue;
 
 import com.spreadthesource.tapestry.dbmigration.ColumnDef;
-import com.spreadthesource.tapestry.dbmigration.services.PrimaryKeyStrategy;
 import com.spreadthesource.tapestry.dbmigration.utils.MigrationUtils;
 
 /**
@@ -21,24 +19,6 @@ import com.spreadthesource.tapestry.dbmigration.utils.MigrationUtils;
  */
 public class CreateTableContextImpl extends AbstractTableContext implements CreateTableContext
 {
-
-    private final Dialect dialect;
-
-    private final String defaultCatalog;
-
-    private final String defaultSchema;
-
-    private final PrimaryKeyStrategy pkStrategy;
-
-    public CreateTableContextImpl(Dialect dialect, String defaultCatalog, String defaultSchema,
-            PrimaryKeyStrategy pkStrategy)
-    {
-        super();
-        this.dialect = dialect;
-        this.defaultCatalog = defaultCatalog;
-        this.defaultSchema = defaultSchema;
-        this.pkStrategy = pkStrategy;
-    }
 
     public List<String> getQueries()
     {

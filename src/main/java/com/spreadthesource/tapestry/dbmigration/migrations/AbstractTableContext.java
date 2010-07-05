@@ -6,7 +6,12 @@ import java.util.List;
 
 import com.spreadthesource.tapestry.dbmigration.ColumnDef;
 
-public abstract class AbstractTableContext implements TableContext
+/**
+ * Base class for MigrationContext that manipulates Tables.
+ * 
+ * @author ccordenier
+ */
+public abstract class AbstractTableContext extends AbstractMigrationContext implements TableContext
 {
 
     protected String name;

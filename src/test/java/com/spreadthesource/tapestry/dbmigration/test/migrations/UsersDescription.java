@@ -16,7 +16,7 @@ public class UsersDescription implements Migration
 
     public void up()
     {
-        helper.updateTable(new UpdateTable()
+        helper.add(new UpdateTable()
         {
             public void run(UpdateTableContext ctx)
             {

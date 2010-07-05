@@ -4,11 +4,9 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.dialect.Dialect;
 import org.hibernate.mapping.Table;
 
 import com.spreadthesource.tapestry.dbmigration.ColumnDef;
-import com.spreadthesource.tapestry.dbmigration.services.PrimaryKeyStrategy;
 import com.spreadthesource.tapestry.dbmigration.utils.MigrationUtils;
 
 /**
@@ -16,27 +14,9 @@ import com.spreadthesource.tapestry.dbmigration.utils.MigrationUtils;
  * 
  * @author ccordenier
  */
-public class JoinTableContextImpl implements JoinTableContext
+public class JoinTableContextImpl extends AbstractMigrationContext implements JoinTableContext
 {
-    private final Dialect dialect;
-
-    private final String defaultCatalog;
-
-    private final String defaultSchema;
-
-    private final PrimaryKeyStrategy pkStrategy;
-
     private List<String> queries = new ArrayList<String>();
-
-    public JoinTableContextImpl(Dialect dialect, String defaultCatalog, String defaultSchema,
-            PrimaryKeyStrategy pkStrategy)
-    {
-        super();
-        this.dialect = dialect;
-        this.defaultCatalog = defaultCatalog;
-        this.defaultSchema = defaultSchema;
-        this.pkStrategy = pkStrategy;
-    }
 
     public void join(String name, String tableOne, String tableTwo)
     {

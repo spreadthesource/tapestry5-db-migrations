@@ -34,6 +34,8 @@ public class MigrationManagerImpl implements MigrationManager
 
     private MigrationHelper helper;
 
+    private DbSource dbSource;
+
     private ObjectLocator objectLocator;
 
     private String versioningTableName;
@@ -45,6 +47,7 @@ public class MigrationManagerImpl implements MigrationManager
             ObjectLocator objectLocator,
             MigrationRunner runner,
             MigrationHelper helper,
+            DbSource dbSource,
             @Inject @Symbol(MigrationSymbolConstants.VERSIONING_TABLE_NAME) String versioningTableName)
     {
         this.log = logger;
@@ -52,6 +55,7 @@ public class MigrationManagerImpl implements MigrationManager
         this.versioningTableName = versioningTableName;
         this.helper = helper;
         this.runner = runner;
+        this.dbSource = dbSource;
         this.objectLocator = objectLocator;
 
         for (String packageName : packages)
@@ -78,7 +82,7 @@ public class MigrationManagerImpl implements MigrationManager
 
     public Integer current()
     {
-        QuerySelect q = new QuerySelect(helper.getDialect());
+        QuerySelect q = new QuerySelect(dbSource.getDialect());
         q.addSelectFragmentString("version");
 
         JoinFragment from = q.getJoinFragment();
@@ -226,7 +230,7 @@ public class MigrationManagerImpl implements MigrationManager
     {
         Date now = new Date(System.currentTimeMillis());
 
-        Insert insert = new Insert(helper.getDialect());
+        Insert insert = new Insert(dbSource.getDialect());
         insert.setTableName(versioningTableName);
         insert.addColumn("version", version.toString());
         insert.addColumn("datetime", "'" + Hibernate.TIMESTAMP.toString(now) + "'");

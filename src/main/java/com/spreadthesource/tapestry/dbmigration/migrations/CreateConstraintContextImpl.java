@@ -6,31 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.tapestry5.ioc.internal.util.Defense;
-import org.hibernate.dialect.Dialect;
 import org.hibernate.mapping.Column;
 import org.hibernate.mapping.UniqueKey;
 
-public class CreateConstraintContextImpl implements CreateConstraintContext
+public class CreateConstraintContextImpl extends AbstractMigrationContext implements
+        CreateConstraintContext
 {
-    private final Dialect dialect;
-
-    private final String defaultCatalog;
-
-    private final String defaultSchema;
-
     private String name;
 
     private List<String> foreignKeys = new ArrayList<String>();
 
     private Map<String, String[]> uniqueTuples = new Hashtable<String, String[]>();
-
-    public CreateConstraintContextImpl(Dialect dialect, String defaultCatalog, String defaultSchema)
-    {
-        super();
-        this.dialect = dialect;
-        this.defaultCatalog = defaultCatalog;
-        this.defaultSchema = defaultSchema;
-    }
 
     public void setForeignKey(String name, String foreignTable, String[] fromColumns,
             String[] toColumns)

@@ -27,7 +27,7 @@ public class SchemaInitialization implements Migration
 
     public void up()
     {
-        helper.createTable(new CreateTable()
+        helper.add(new CreateTable()
         {
             public void run(CreateTableContext ctx)
             {

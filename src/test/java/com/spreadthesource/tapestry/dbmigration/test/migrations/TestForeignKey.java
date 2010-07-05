@@ -21,7 +21,7 @@ public class TestForeignKey implements Migration
 
     public void up()
     {
-        helper.createTable(new CreateTable()
+        helper.add(new CreateTable()
         {
             public void run(CreateTableContext ctx)
             {
@@ -30,7 +30,7 @@ public class TestForeignKey implements Migration
             }
         });
 
-        helper.createTable(new CreateTable()
+        helper.add(new CreateTable()
         {
             public void run(CreateTableContext ctx)
             {
@@ -40,7 +40,7 @@ public class TestForeignKey implements Migration
             }
         });
 
-        helper.createConstraint(new CreateConstraint()
+        helper.add(new CreateConstraint()
         {
             public void run(CreateConstraintContext ctx)
             {
@@ -54,7 +54,7 @@ public class TestForeignKey implements Migration
 
     public void down()
     {
-        helper.drop(new Drop()
+        helper.add(new Drop()
         {
             public void run(DropContext ctx)
             {

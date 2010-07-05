@@ -4,38 +4,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
-import org.apache.tapestry5.hibernate.HibernateConfigurer;
 import org.apache.tapestry5.ioc.annotations.Inject;
-import org.apache.tapestry5.ioc.annotations.Symbol;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.Environment;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.jdbc.util.FormatStyle;
-import org.hibernate.jdbc.util.Formatter;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
-import org.hibernate.util.PropertiesHelper;
 import org.slf4j.Logger;
 
-import com.spreadthesource.tapestry.dbmigration.MigrationSymbolConstants;
 import com.spreadthesource.tapestry.dbmigration.hibernate.ConnectionHelper;
-import com.spreadthesource.tapestry.dbmigration.hibernate.ManagedProviderConnectionHelper;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraint;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraintContext;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraintContextImpl;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateTable;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContext;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContextImpl;
-import com.spreadthesource.tapestry.dbmigration.migrations.Drop;
-import com.spreadthesource.tapestry.dbmigration.migrations.DropContext;
-import com.spreadthesource.tapestry.dbmigration.migrations.DropContextImpl;
-import com.spreadthesource.tapestry.dbmigration.migrations.JoinTable;
-import com.spreadthesource.tapestry.dbmigration.migrations.JoinTableContext;
-import com.spreadthesource.tapestry.dbmigration.migrations.JoinTableContextImpl;
-import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTable;
-import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTableContext;
-import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTableContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.MigrationCommand;
+import com.spreadthesource.tapestry.dbmigration.migrations.MigrationContext;
 
 public class MigrationHelperImpl implements MigrationHelper
 {
@@ -43,89 +20,34 @@ public class MigrationHelperImpl implements MigrationHelper
     @Inject
     private PrimaryKeyStrategy pkStrategy;
 
-    private Configuration configuration;
-
-    private ConnectionHelper connectionHelper;
+    @Inject
+    private DbSource dbSource;
 
     private DatabaseMetadata databaseMetadata;
-
-    private Dialect dialect;
-
-    private String defaultCatalog;
-
-    private String defaultSchema;
-
-    private Formatter formatter;
 
     private Logger log;
 
     private List<String> pendingSql = new ArrayList<String>();
 
-    public MigrationHelperImpl(
-            List<HibernateConfigurer> hibConfigurers,
-            Logger log,
-            @Inject @Symbol(MigrationSymbolConstants.DEFAULT_HIBERNATE_CONFIGURATION) boolean defaultConfiguration)
+    private Map<String, String> mapping;
+
+    public MigrationHelperImpl(Map<String, String> mapping, Logger log)
     {
-        this.configuration = new Configuration();
-
-        if (defaultConfiguration)
-        {
-            configuration.configure();
-        }
-
-        for (HibernateConfigurer configurer : hibConfigurers)
-        {
-            configurer.configure(configuration);
-        }
-
-        Properties properties = configuration.getProperties();
-
-        this.dialect = Dialect.getDialect(properties);
-        this.connectionHelper = new ManagedProviderConnectionHelper(properties);
-
-        this.defaultCatalog = properties.getProperty(Environment.DEFAULT_CATALOG);
-        this.defaultSchema = properties.getProperty(Environment.DEFAULT_SCHEMA);
-
-        this.formatter = (PropertiesHelper.getBoolean(Environment.FORMAT_SQL, properties) ? FormatStyle.DDL
-                : FormatStyle.NONE).getFormatter();
-
+        this.mapping = mapping;
         this.log = log;
-    }
-
-    public Dialect getDialect()
-    {
-        return this.dialect;
-    }
-
-    public String getDefaultSchema()
-    {
-        return this.defaultSchema;
-    }
-
-    public String getDefaultCatalog()
-    {
-        return this.defaultCatalog;
-    }
-
-    public ConnectionHelper getConnectionHelper()
-    {
-        return this.connectionHelper;
-    }
-
-    public Formatter getFormatter()
-    {
-        return this.formatter;
     }
 
     public boolean checkIfTableExists(String tableName)
     {
         Connection connection = null;
 
+        ConnectionHelper connectionHelper = dbSource.getConnectionHelper();
+
         try
         {
             connectionHelper.prepare(true);
             connection = connectionHelper.getConnection();
-            databaseMetadata = new DatabaseMetadata(connection, dialect);
+            databaseMetadata = new DatabaseMetadata(connection, dbSource.getDialect());
 
             if (databaseMetadata.isTable(tableName))
             {
@@ -152,30 +74,29 @@ public class MigrationHelperImpl implements MigrationHelper
         return false;
     }
 
-    public void createTable(CreateTable command)
-    {
-        CreateTableContext createContext = new CreateTableContextImpl(dialect, defaultCatalog,
-                defaultSchema, pkStrategy);
-        command.run(createContext);
-        pendingSql.addAll(createContext.getQueries());
-    }
-
-    public void updateTable(UpdateTable command)
+    @SuppressWarnings("unchecked")
+    public void add(MigrationCommand command)
     {
         Connection connection = null;
+        ConnectionHelper connectionHelper = dbSource.getConnectionHelper();
 
         try
         {
             // Get the database metadatas
             connectionHelper.prepare(true);
             connection = connectionHelper.getConnection();
-            databaseMetadata = new DatabaseMetadata(connection, dialect);
+            databaseMetadata = new DatabaseMetadata(connection, dbSource.getDialect());
 
-            // Update table
-            UpdateTableContext updateContext = new UpdateTableContextImpl(dialect, defaultCatalog,
-                    defaultSchema, databaseMetadata);
-            command.run(updateContext);
-            pendingSql.addAll(updateContext.getQueries());
+            // Call command
+            MigrationContext context = createContextInstance(command);
+            context.setConnectionHelper(connectionHelper);
+            context.setDatabaseMetadata(databaseMetadata);
+            context.setDialect(dbSource.getDialect());
+            context.setDefaultCatalog(dbSource.getDefaultCatalog());
+            context.setDefaultSchema(dbSource.getDefaultSchema());
+            context.setPrimaryKeyStrategy(pkStrategy);
+            command.run(context);
+            pendingSql.addAll(context.getQueries());
         }
         catch (SQLException sqle)
         {
@@ -195,29 +116,6 @@ public class MigrationHelperImpl implements MigrationHelper
 
     }
 
-    public void createConstraint(CreateConstraint command)
-    {
-        CreateConstraintContext ctx = new CreateConstraintContextImpl(dialect, defaultCatalog,
-                defaultSchema);
-        command.run(ctx);
-        pendingSql.addAll(ctx.getQueries());
-    }
-
-    public void drop(Drop command)
-    {
-        DropContext ctx = new DropContextImpl(dialect, defaultCatalog, defaultSchema);
-        command.run(ctx);
-        pendingSql.addAll(ctx.getQueries());
-    }
-
-    public void join(JoinTable command)
-    {
-        JoinTableContext ctx = new JoinTableContextImpl(dialect, defaultCatalog, defaultSchema,
-                pkStrategy);
-        command.run(ctx);
-        pendingSql.addAll(ctx.getQueries());
-    }
-
     public List<String> getPendingSql()
     {
         return pendingSql;
@@ -226,6 +124,34 @@ public class MigrationHelperImpl implements MigrationHelper
     public void reset()
     {
         this.pendingSql.clear();
+    }
+
+    @SuppressWarnings("unchecked")
+    private MigrationContext createContextInstance(MigrationCommand command)
+    {
+
+        for (Class<?> ctxClass : command.getClass().getInterfaces())
+        {
+            if (mapping.containsKey(ctxClass.getName()))
+            {
+                // Call command
+                String contextClass = mapping.get(ctxClass.getName());
+
+                try
+                {
+                    MigrationContext context = (MigrationContext) Class.forName(contextClass)
+                            .newInstance();
+                    return context;
+                }
+                catch (Exception ex)
+                {
+                    throw new IllegalArgumentException("Context class not found " + contextClass);
+                }
+            }
+        }
+
+        throw new IllegalArgumentException("Command not supported " + command.getClass().getName());
+
     }
 
 }

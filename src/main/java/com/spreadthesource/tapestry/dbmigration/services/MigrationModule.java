@@ -24,6 +24,16 @@ import org.apache.tapestry5.ioc.ServiceBinder;
 import org.apache.tapestry5.ioc.annotations.Match;
 
 import com.spreadthesource.tapestry.dbmigration.MigrationSymbolConstants;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraint;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraintContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.Drop;
+import com.spreadthesource.tapestry.dbmigration.migrations.DropContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.JoinTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.JoinTableContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTableContextImpl;
 
 public class MigrationModule
 {
@@ -32,6 +42,7 @@ public class MigrationModule
         binder.bind(MigrationManager.class, MigrationManagerImpl.class);
         binder.bind(MigrationRunner.class, MigrationRunnerImpl.class);
         binder.bind(MigrationHelper.class, MigrationHelperImpl.class);
+        binder.bind(DbSource.class, DbSourceImpl.class);
         binder.bind(PrimaryKeyStrategy.class, DefaultPrimaryKeyStrategy.class);
     }
 
@@ -49,6 +60,16 @@ public class MigrationModule
         };
 
         receiver.adviseAllMethods(advice);
+    }
+
+    public void contributeMigrationHelper(MappedConfiguration<String, String> configuration)
+    {
+        configuration.add(CreateTable.class.getName(), CreateTableContextImpl.class.getName());
+        configuration.add(CreateConstraint.class.getName(), CreateConstraintContextImpl.class
+                .getName());
+        configuration.add(UpdateTable.class.getName(), UpdateTableContextImpl.class.getName());
+        configuration.add(Drop.class.getName(), DropContextImpl.class.getName());
+        configuration.add(JoinTable.class.getName(), JoinTableContextImpl.class.getName());
     }
 
     public static void contributeFactoryDefaults(MappedConfiguration<String, String> configuration)

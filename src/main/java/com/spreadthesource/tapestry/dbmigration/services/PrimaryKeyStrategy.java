@@ -10,8 +10,20 @@ import com.spreadthesource.tapestry.dbmigration.ColumnDef;
 public interface PrimaryKeyStrategy
 {
 
+    /**
+     * Get the default list of primary columns.
+     *
+     * @param tableName The name of table.
+     * @return
+     */
     List<ColumnDef> getPrimaryKeys(String tableName);
     
+    /**
+     * This method is called to build a default id column name.
+     *
+     * @param tableName The name of the table.
+     * @return
+     */
     String buildColumnId(String tableName);
 
 }

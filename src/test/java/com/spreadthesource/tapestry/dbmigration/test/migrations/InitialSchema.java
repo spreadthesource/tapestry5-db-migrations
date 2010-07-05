@@ -24,7 +24,7 @@ public class InitialSchema implements Migration
     {
 
         // Table Authority
-        helper.createTable(new CreateTable()
+        helper.add(new CreateTable()
         {
             public void run(CreateTableContext ctx)
             {
@@ -36,7 +36,7 @@ public class InitialSchema implements Migration
         });
 
         // Table Authority
-        helper.createTable(new CreateTable()
+        helper.add(new CreateTable()
         {
             public void run(CreateTableContext ctx)
             {
@@ -47,7 +47,7 @@ public class InitialSchema implements Migration
         });
 
         // Add constraints
-        helper.createConstraint(new CreateConstraint()
+        helper.add(new CreateConstraint()
         {
             public void run(CreateConstraintContext ctx)
             {
@@ -56,7 +56,7 @@ public class InitialSchema implements Migration
             }
         });
 
-        helper.join(new JoinTable()
+        helper.add(new JoinTable()
         {
 
             public void run(JoinTableContext ctx)
@@ -69,7 +69,7 @@ public class InitialSchema implements Migration
 
     public void down()
     {
-        helper.drop(new Drop()
+        helper.add(new Drop()
         {
             public void run(DropContext ctx)
             {
