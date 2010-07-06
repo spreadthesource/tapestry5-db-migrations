@@ -29,9 +29,9 @@ public class MigrationHelperImpl implements MigrationHelper
 
     private List<String> pendingSql = new ArrayList<String>();
 
-    private Map<String, String> mapping;
+    private Map<Class, Class> mapping;
 
-    public MigrationHelperImpl(Map<String, String> mapping, Logger log)
+    public MigrationHelperImpl(Map<Class, Class> mapping, Logger log)
     {
         this.mapping = mapping;
         this.log = log;
@@ -130,17 +130,14 @@ public class MigrationHelperImpl implements MigrationHelper
     private MigrationContext createContextInstance(MigrationCommand command)
     {
 
-        for (Class<?> ctxClass : command.getClass().getInterfaces())
+        for (Class<MigrationCommand> commandClass : mapping.keySet())
         {
-            if (mapping.containsKey(ctxClass.getName()))
+            if (commandClass.isInstance(command))
             {
-                // Call command
-                String contextClass = mapping.get(ctxClass.getName());
-
+                Class<MigrationContext> contextClass = mapping.get(commandClass);
                 try
                 {
-                    MigrationContext context = (MigrationContext) Class.forName(contextClass)
-                            .newInstance();
+                    MigrationContext context = contextClass.newInstance();
                     return context;
                 }
                 catch (Exception ex)

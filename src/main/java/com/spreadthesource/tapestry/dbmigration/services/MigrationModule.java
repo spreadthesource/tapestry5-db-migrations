@@ -62,14 +62,13 @@ public class MigrationModule
         receiver.adviseAllMethods(advice);
     }
 
-    public void contributeMigrationHelper(MappedConfiguration<String, String> configuration)
+    public void contributeMigrationHelper(MappedConfiguration<Class, Class> configuration)
     {
-        configuration.add(CreateTable.class.getName(), CreateTableContextImpl.class.getName());
-        configuration.add(CreateConstraint.class.getName(), CreateConstraintContextImpl.class
-                .getName());
-        configuration.add(UpdateTable.class.getName(), UpdateTableContextImpl.class.getName());
-        configuration.add(Drop.class.getName(), DropContextImpl.class.getName());
-        configuration.add(JoinTable.class.getName(), JoinTableContextImpl.class.getName());
+        configuration.add(CreateTable.class, CreateTableContextImpl.class);
+        configuration.add(CreateConstraint.class, CreateConstraintContextImpl.class);
+        configuration.add(UpdateTable.class, UpdateTableContextImpl.class);
+        configuration.add(Drop.class, DropContextImpl.class);
+        configuration.add(JoinTable.class, JoinTableContextImpl.class);
     }
 
     public static void contributeFactoryDefaults(MappedConfiguration<String, String> configuration)
