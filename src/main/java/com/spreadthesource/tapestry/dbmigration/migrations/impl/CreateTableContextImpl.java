@@ -1,4 +1,4 @@
-package com.spreadthesource.tapestry.dbmigration.migrations;
+package com.spreadthesource.tapestry.dbmigration.migrations.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +9,8 @@ import org.hibernate.mapping.PrimaryKey;
 import org.hibernate.mapping.SimpleValue;
 
 import com.spreadthesource.tapestry.dbmigration.ColumnDef;
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.DefaultMapping;
 import com.spreadthesource.tapestry.dbmigration.utils.MigrationUtils;
 
 /**

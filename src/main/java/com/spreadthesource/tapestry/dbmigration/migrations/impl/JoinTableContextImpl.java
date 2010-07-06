@@ -1,4 +1,4 @@
-package com.spreadthesource.tapestry.dbmigration.migrations;
+package com.spreadthesource.tapestry.dbmigration.migrations.impl;
 
 import java.sql.Types;
 import java.util.ArrayList;
@@ -7,6 +7,8 @@ import java.util.List;
 import org.hibernate.mapping.Table;
 
 import com.spreadthesource.tapestry.dbmigration.ColumnDef;
+import com.spreadthesource.tapestry.dbmigration.migrations.DefaultMapping;
+import com.spreadthesource.tapestry.dbmigration.migrations.JoinTableContext;
 import com.spreadthesource.tapestry.dbmigration.utils.MigrationUtils;
 
 /**
@@ -38,10 +40,8 @@ public class JoinTableContextImpl extends AbstractMigrationContext implements Jo
     {
         // Create join table
         Table joinTable = new Table(name);
-        ColumnDef def1 = new ColumnDef(pkOne, Types.BIGINT).setPrimary(true).setIdentityGenerator(
-                "identity").setUnique(true);
-        ColumnDef def2 = new ColumnDef(pkTwo, Types.BIGINT).setPrimary(true).setIdentityGenerator(
-                "identity").setUnique(true);
+        ColumnDef def1 = new ColumnDef(pkOne, Types.BIGINT).setNotNull(true);
+        ColumnDef def2 = new ColumnDef(pkTwo, Types.BIGINT).setNotNull(true);
         joinTable.addColumn(MigrationUtils.buildHibCol(dialect, def1));
         joinTable.addColumn(MigrationUtils.buildHibCol(dialect, def2));
         queries.add(joinTable.sqlCreateString(
@@ -49,7 +49,7 @@ public class JoinTableContextImpl extends AbstractMigrationContext implements Jo
                 new DefaultMapping(),
                 defaultCatalog,
                 defaultSchema));
-
+        
         // Create foreign keys
         String fkScript = dialect.getAddForeignKeyConstraintString(
                 name + "_to_" + tableOne,

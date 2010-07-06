@@ -25,15 +25,15 @@ import org.apache.tapestry5.ioc.annotations.Match;
 
 import com.spreadthesource.tapestry.dbmigration.MigrationSymbolConstants;
 import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraint;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraintContextImpl;
 import com.spreadthesource.tapestry.dbmigration.migrations.CreateTable;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContextImpl;
 import com.spreadthesource.tapestry.dbmigration.migrations.Drop;
-import com.spreadthesource.tapestry.dbmigration.migrations.DropContextImpl;
 import com.spreadthesource.tapestry.dbmigration.migrations.JoinTable;
-import com.spreadthesource.tapestry.dbmigration.migrations.JoinTableContextImpl;
 import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTable;
-import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTableContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.impl.CreateConstraintContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.impl.CreateTableContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.impl.DropContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.impl.JoinTableContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.impl.UpdateTableContextImpl;
 
 public class MigrationModule
 {

@@ -1,10 +1,11 @@
-package com.spreadthesource.tapestry.dbmigration.migrations;
+package com.spreadthesource.tapestry.dbmigration.migrations.impl;
 
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.spreadthesource.tapestry.dbmigration.ColumnDef;
+import com.spreadthesource.tapestry.dbmigration.migrations.TableContext;
 
 /**
  * Base class for MigrationContext that manipulates Tables.

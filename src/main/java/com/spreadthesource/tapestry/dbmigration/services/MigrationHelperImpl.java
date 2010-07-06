@@ -95,6 +95,7 @@ public class MigrationHelperImpl implements MigrationHelper
             context.setDefaultCatalog(dbSource.getDefaultCatalog());
             context.setDefaultSchema(dbSource.getDefaultSchema());
             context.setPrimaryKeyStrategy(pkStrategy);
+            
             command.run(context);
             pendingSql.addAll(context.getQueries());
         }

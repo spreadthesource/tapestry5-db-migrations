@@ -1,4 +1,4 @@
-package com.spreadthesource.tapestry.dbmigration.migrations;
+package com.spreadthesource.tapestry.dbmigration.migrations.impl;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -8,6 +8,8 @@ import java.util.Map;
 import org.apache.tapestry5.ioc.internal.util.Defense;
 import org.hibernate.mapping.Column;
 import org.hibernate.mapping.UniqueKey;
+
+import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraintContext;
 
 public class CreateConstraintContextImpl extends AbstractMigrationContext implements
         CreateConstraintContext

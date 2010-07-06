@@ -1,9 +1,11 @@
-package com.spreadthesource.tapestry.dbmigration.migrations;
+package com.spreadthesource.tapestry.dbmigration.migrations.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.mapping.ForeignKey;
+
+import com.spreadthesource.tapestry.dbmigration.migrations.DropContext;
 
 public class DropContextImpl extends AbstractMigrationContext implements DropContext
 {

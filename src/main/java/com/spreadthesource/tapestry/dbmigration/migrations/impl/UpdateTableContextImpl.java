@@ -1,4 +1,4 @@
-package com.spreadthesource.tapestry.dbmigration.migrations;
+package com.spreadthesource.tapestry.dbmigration.migrations.impl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,6 +9,8 @@ import org.hibernate.mapping.Table;
 import org.hibernate.tool.hbm2ddl.TableMetadata;
 
 import com.spreadthesource.tapestry.dbmigration.ColumnDef;
+import com.spreadthesource.tapestry.dbmigration.migrations.DefaultMapping;
+import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTableContext;
 import com.spreadthesource.tapestry.dbmigration.utils.MigrationUtils;
 
 public class UpdateTableContextImpl extends AbstractTableContext implements UpdateTableContext

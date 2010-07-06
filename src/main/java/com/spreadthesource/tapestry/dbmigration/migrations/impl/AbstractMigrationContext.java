@@ -1,9 +1,10 @@
-package com.spreadthesource.tapestry.dbmigration.migrations;
+package com.spreadthesource.tapestry.dbmigration.migrations.impl;
 
 import org.hibernate.dialect.Dialect;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 
 import com.spreadthesource.tapestry.dbmigration.hibernate.ConnectionHelper;
+import com.spreadthesource.tapestry.dbmigration.migrations.MigrationContext;
 import com.spreadthesource.tapestry.dbmigration.services.PrimaryKeyStrategy;
 
 /**
