@@ -2,7 +2,7 @@ package com.spreadthesource.tapestry.dbmigration.services;
 
 import java.util.List;
 
-import com.spreadthesource.tapestry.dbmigration.migrations.MigrationCommand;
+import com.spreadthesource.tapestry.dbmigration.command.MigrationCommand;
 
 public interface MigrationHelper
 {

@@ -3,15 +3,15 @@ package com.spreadthesource.tapestry.dbmigration.test.migrations;
 import org.apache.tapestry5.ioc.annotations.Inject;
 
 import com.spreadthesource.tapestry.dbmigration.annotations.Version;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraint;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraintContext;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateTable;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContext;
-import com.spreadthesource.tapestry.dbmigration.migrations.Drop;
+import com.spreadthesource.tapestry.dbmigration.command.CreateConstraint;
+import com.spreadthesource.tapestry.dbmigration.command.CreateTable;
+import com.spreadthesource.tapestry.dbmigration.command.Drop;
+import com.spreadthesource.tapestry.dbmigration.command.JoinTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.Constraint;
 import com.spreadthesource.tapestry.dbmigration.migrations.DropContext;
-import com.spreadthesource.tapestry.dbmigration.migrations.JoinTable;
 import com.spreadthesource.tapestry.dbmigration.migrations.JoinTableContext;
 import com.spreadthesource.tapestry.dbmigration.migrations.Migration;
+import com.spreadthesource.tapestry.dbmigration.migrations.Table;
 import com.spreadthesource.tapestry.dbmigration.services.MigrationHelper;
 
 @Version(20100430)
@@ -26,7 +26,7 @@ public class InitialSchema implements Migration
         // Table Authority
         helper.add(new CreateTable()
         {
-            public void run(CreateTableContext ctx)
+            public void run(Table ctx)
             {
                 ctx.setName("Authority");
                 ctx.addString("label").setUnique(true);
@@ -38,7 +38,7 @@ public class InitialSchema implements Migration
         // Table Authority
         helper.add(new CreateTable()
         {
-            public void run(CreateTableContext ctx)
+            public void run(Table ctx)
             {
                 ctx.setName("User");
                 ctx.addString("username").setUnique(true).setNotNull(true);
@@ -49,7 +49,7 @@ public class InitialSchema implements Migration
         // Add constraints
         helper.add(new CreateConstraint()
         {
-            public void run(CreateConstraintContext ctx)
+            public void run(Constraint ctx)
             {
                 ctx.setName("Authority");
                 ctx.setUnique("AuthorityUnicity", "label", "id");

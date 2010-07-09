@@ -8,7 +8,7 @@ import org.hibernate.dialect.Dialect;
  * @author ccordenier
  *
  */
-public interface SqlContext extends MigrationContext
+public interface SqlQuery extends MigrationContext
 {
 
     /**

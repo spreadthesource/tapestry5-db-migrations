@@ -9,8 +9,8 @@ import org.hibernate.mapping.PrimaryKey;
 import org.hibernate.mapping.SimpleValue;
 
 import com.spreadthesource.tapestry.dbmigration.ColumnDef;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContext;
-import com.spreadthesource.tapestry.dbmigration.migrations.DefaultMapping;
+import com.spreadthesource.tapestry.dbmigration.hibernate.DefaultMapping;
+import com.spreadthesource.tapestry.dbmigration.migrations.Table;
 import com.spreadthesource.tapestry.dbmigration.utils.MigrationUtils;
 
 /**
@@ -19,7 +19,7 @@ import com.spreadthesource.tapestry.dbmigration.utils.MigrationUtils;
  * 
  * @author ccordenier
  */
-public class CreateTableContextImpl extends AbstractTableContext implements CreateTableContext
+public class TableImpl extends AbstractTable implements Table
 {
 
     public List<String> getQueries()

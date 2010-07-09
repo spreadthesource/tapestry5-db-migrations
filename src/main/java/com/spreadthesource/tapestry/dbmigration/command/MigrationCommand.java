@@ -1,4 +1,6 @@
-package com.spreadthesource.tapestry.dbmigration.migrations;
+package com.spreadthesource.tapestry.dbmigration.command;
+
+import com.spreadthesource.tapestry.dbmigration.migrations.MigrationContext;
 
 /**
  * Every command represents a list of consistent queries to execute on the database.

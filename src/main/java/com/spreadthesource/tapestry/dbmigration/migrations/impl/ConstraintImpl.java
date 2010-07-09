@@ -9,10 +9,10 @@ import org.apache.tapestry5.ioc.internal.util.Defense;
 import org.hibernate.mapping.Column;
 import org.hibernate.mapping.UniqueKey;
 
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraintContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.Constraint;
 
-public class CreateConstraintContextImpl extends AbstractMigrationContext implements
-        CreateConstraintContext
+public class ConstraintImpl extends AbstractMigrationContext implements
+        Constraint
 {
     private String name;
 

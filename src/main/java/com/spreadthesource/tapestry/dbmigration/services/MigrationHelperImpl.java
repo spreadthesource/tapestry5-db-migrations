@@ -10,8 +10,8 @@ import org.apache.tapestry5.ioc.annotations.Inject;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.slf4j.Logger;
 
+import com.spreadthesource.tapestry.dbmigration.command.MigrationCommand;
 import com.spreadthesource.tapestry.dbmigration.hibernate.ConnectionHelper;
-import com.spreadthesource.tapestry.dbmigration.migrations.MigrationCommand;
 import com.spreadthesource.tapestry.dbmigration.migrations.MigrationContext;
 
 public class MigrationHelperImpl implements MigrationHelper

@@ -5,7 +5,7 @@ package com.spreadthesource.tapestry.dbmigration.migrations;
  * 
  * @author ccordenier
  */
-public interface CreateConstraintContext extends MigrationContext
+public interface Constraint extends MigrationContext
 {
     /**
      * Set the name of the table to create on which the constraint is applied.

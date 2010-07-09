@@ -5,9 +5,9 @@ import org.apache.tapestry5.ioc.annotations.Symbol;
 
 import com.spreadthesource.tapestry.dbmigration.MigrationSymbolConstants;
 import com.spreadthesource.tapestry.dbmigration.annotations.Version;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateTable;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContext;
+import com.spreadthesource.tapestry.dbmigration.command.CreateTable;
 import com.spreadthesource.tapestry.dbmigration.migrations.Migration;
+import com.spreadthesource.tapestry.dbmigration.migrations.Table;
 import com.spreadthesource.tapestry.dbmigration.services.MigrationHelper;
 
 @Version(0)
@@ -29,7 +29,7 @@ public class SchemaInitialization implements Migration
     {
         helper.add(new CreateTable()
         {
-            public void run(CreateTableContext ctx)
+            public void run(Table ctx)
             {
                 ctx.setName(versioningTableName);
                 ctx.addInteger("id").setPrimary(true).setIdentityGenerator("identity");

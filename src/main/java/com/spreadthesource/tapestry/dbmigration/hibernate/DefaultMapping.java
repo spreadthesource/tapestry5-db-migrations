@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.spreadthesource.tapestry.dbmigration.migrations;
+package com.spreadthesource.tapestry.dbmigration.hibernate;
 
 import org.hibernate.MappingException;
 import org.hibernate.engine.Mapping;

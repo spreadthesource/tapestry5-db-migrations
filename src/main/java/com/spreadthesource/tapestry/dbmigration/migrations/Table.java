@@ -2,7 +2,12 @@ package com.spreadthesource.tapestry.dbmigration.migrations;
 
 import com.spreadthesource.tapestry.dbmigration.ColumnDef;
 
-public interface TableContext extends MigrationContext
+/**
+ * This context will allow you to create table and its column definition.
+ * 
+ * @author ccordenier
+ */
+public interface Table extends MigrationContext
 {
 
     /**
@@ -25,5 +30,13 @@ public interface TableContext extends MigrationContext
     ColumnDef addTimestamp(String name);
 
     ColumnDef addDate(String name);
+
+    /**
+     * Add a non-type column, type will have to be set manually on the column def.
+     *
+     * @param name
+     * @return
+     */
+    ColumnDef add(String name);
 
 }

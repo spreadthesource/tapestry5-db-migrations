@@ -3,13 +3,13 @@ package com.spreadthesource.tapestry.dbmigration.test.migrations;
 import org.apache.tapestry5.ioc.annotations.Inject;
 
 import com.spreadthesource.tapestry.dbmigration.annotations.Version;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraint;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraintContext;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateTable;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContext;
-import com.spreadthesource.tapestry.dbmigration.migrations.Drop;
+import com.spreadthesource.tapestry.dbmigration.command.CreateConstraint;
+import com.spreadthesource.tapestry.dbmigration.command.CreateTable;
+import com.spreadthesource.tapestry.dbmigration.command.Drop;
+import com.spreadthesource.tapestry.dbmigration.migrations.Constraint;
 import com.spreadthesource.tapestry.dbmigration.migrations.DropContext;
 import com.spreadthesource.tapestry.dbmigration.migrations.Migration;
+import com.spreadthesource.tapestry.dbmigration.migrations.Table;
 import com.spreadthesource.tapestry.dbmigration.services.MigrationHelper;
 
 @Version(20100604)
@@ -23,7 +23,7 @@ public class TestForeignKey implements Migration
     {
         helper.add(new CreateTable()
         {
-            public void run(CreateTableContext ctx)
+            public void run(Table ctx)
             {
                 ctx.setName("tableA");
                 ctx.addInteger("id").setPrimary(true).setIdentityGenerator("identity");
@@ -32,7 +32,7 @@ public class TestForeignKey implements Migration
 
         helper.add(new CreateTable()
         {
-            public void run(CreateTableContext ctx)
+            public void run(Table ctx)
             {
                 ctx.setName("tableB");
                 ctx.addInteger("id").setPrimary(true).setIdentityGenerator("identity");
@@ -42,7 +42,7 @@ public class TestForeignKey implements Migration
 
         helper.add(new CreateConstraint()
         {
-            public void run(CreateConstraintContext ctx)
+            public void run(Constraint ctx)
             {
                 ctx.setName("tableB");
                 ctx.setForeignKey("fk", "tableA", new String[]

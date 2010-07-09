@@ -28,6 +28,13 @@ public class ColumnDef
 
     private int type;
 
+    public ColumnDef(String name)
+    {
+        this.name = name;
+
+        this.length = Ejb3Column.DEFAULT_COLUMN_LENGTH;
+    }
+
     public ColumnDef(String name, int type)
     {
         this.name = name;

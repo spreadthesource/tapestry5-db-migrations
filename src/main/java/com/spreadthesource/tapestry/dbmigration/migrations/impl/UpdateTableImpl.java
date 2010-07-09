@@ -9,11 +9,11 @@ import org.hibernate.mapping.Table;
 import org.hibernate.tool.hbm2ddl.TableMetadata;
 
 import com.spreadthesource.tapestry.dbmigration.ColumnDef;
-import com.spreadthesource.tapestry.dbmigration.migrations.DefaultMapping;
-import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTableContext;
+import com.spreadthesource.tapestry.dbmigration.hibernate.DefaultMapping;
 import com.spreadthesource.tapestry.dbmigration.utils.MigrationUtils;
 
-public class UpdateTableContextImpl extends AbstractTableContext implements UpdateTableContext
+public class UpdateTableImpl extends AbstractTable implements
+        com.spreadthesource.tapestry.dbmigration.migrations.Table
 {
 
     public List<String> getQueries()

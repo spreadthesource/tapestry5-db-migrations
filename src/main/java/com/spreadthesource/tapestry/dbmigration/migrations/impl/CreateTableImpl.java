@@ -1,7 +1,7 @@
 package com.spreadthesource.tapestry.dbmigration.migrations.impl;
 
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateTable;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateTableContext;
+import com.spreadthesource.tapestry.dbmigration.command.CreateTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.Table;
 
 public class CreateTableImpl implements CreateTable
 {
@@ -13,7 +13,7 @@ public class CreateTableImpl implements CreateTable
         this.name = name;
     }
 
-    public void run(CreateTableContext ctx)
+    public void run(Table ctx)
     {
         ctx.setName(name);
     }

@@ -7,7 +7,7 @@ import java.util.List;
 import org.hibernate.mapping.Table;
 
 import com.spreadthesource.tapestry.dbmigration.ColumnDef;
-import com.spreadthesource.tapestry.dbmigration.migrations.DefaultMapping;
+import com.spreadthesource.tapestry.dbmigration.hibernate.DefaultMapping;
 import com.spreadthesource.tapestry.dbmigration.migrations.JoinTableContext;
 import com.spreadthesource.tapestry.dbmigration.utils.MigrationUtils;
 

@@ -24,16 +24,18 @@ import org.apache.tapestry5.ioc.ServiceBinder;
 import org.apache.tapestry5.ioc.annotations.Match;
 
 import com.spreadthesource.tapestry.dbmigration.MigrationSymbolConstants;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateConstraint;
-import com.spreadthesource.tapestry.dbmigration.migrations.CreateTable;
-import com.spreadthesource.tapestry.dbmigration.migrations.Drop;
-import com.spreadthesource.tapestry.dbmigration.migrations.JoinTable;
-import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTable;
-import com.spreadthesource.tapestry.dbmigration.migrations.impl.CreateConstraintContextImpl;
-import com.spreadthesource.tapestry.dbmigration.migrations.impl.CreateTableContextImpl;
+import com.spreadthesource.tapestry.dbmigration.command.CreateConstraint;
+import com.spreadthesource.tapestry.dbmigration.command.CreateTable;
+import com.spreadthesource.tapestry.dbmigration.command.Drop;
+import com.spreadthesource.tapestry.dbmigration.command.JoinTable;
+import com.spreadthesource.tapestry.dbmigration.command.Sql;
+import com.spreadthesource.tapestry.dbmigration.command.UpdateTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.impl.ConstraintImpl;
 import com.spreadthesource.tapestry.dbmigration.migrations.impl.DropContextImpl;
 import com.spreadthesource.tapestry.dbmigration.migrations.impl.JoinTableContextImpl;
-import com.spreadthesource.tapestry.dbmigration.migrations.impl.UpdateTableContextImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.impl.SqlQueryImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.impl.TableImpl;
+import com.spreadthesource.tapestry.dbmigration.migrations.impl.UpdateTableImpl;
 
 public class MigrationModule
 {
@@ -64,11 +66,12 @@ public class MigrationModule
 
     public void contributeMigrationHelper(MappedConfiguration<Class, Class> configuration)
     {
-        configuration.add(CreateTable.class, CreateTableContextImpl.class);
-        configuration.add(CreateConstraint.class, CreateConstraintContextImpl.class);
-        configuration.add(UpdateTable.class, UpdateTableContextImpl.class);
+        configuration.add(CreateTable.class, TableImpl.class);
+        configuration.add(CreateConstraint.class, ConstraintImpl.class);
+        configuration.add(UpdateTable.class, UpdateTableImpl.class);
         configuration.add(Drop.class, DropContextImpl.class);
         configuration.add(JoinTable.class, JoinTableContextImpl.class);
+        configuration.add(Sql.class, SqlQueryImpl.class);
     }
 
     public static void contributeFactoryDefaults(MappedConfiguration<String, String> configuration)

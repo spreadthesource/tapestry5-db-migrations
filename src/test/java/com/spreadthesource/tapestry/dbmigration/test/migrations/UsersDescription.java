@@ -3,9 +3,11 @@ package com.spreadthesource.tapestry.dbmigration.test.migrations;
 import org.apache.tapestry5.ioc.annotations.Inject;
 
 import com.spreadthesource.tapestry.dbmigration.annotations.Version;
+import com.spreadthesource.tapestry.dbmigration.command.Sql;
+import com.spreadthesource.tapestry.dbmigration.command.UpdateTable;
 import com.spreadthesource.tapestry.dbmigration.migrations.Migration;
-import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTable;
-import com.spreadthesource.tapestry.dbmigration.migrations.UpdateTableContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.SqlQuery;
+import com.spreadthesource.tapestry.dbmigration.migrations.Table;
 import com.spreadthesource.tapestry.dbmigration.services.MigrationHelper;
 
 @Version(20100510)
@@ -18,10 +20,18 @@ public class UsersDescription implements Migration
     {
         helper.add(new UpdateTable()
         {
-            public void run(UpdateTableContext ctx)
+            public void run(Table ctx)
             {
                 ctx.setName("User");
                 ctx.addString("civility");
+            }
+        });
+
+        helper.add(new Sql()
+        {
+            public void run(SqlQuery ctx)
+            {
+                ctx.addSql("create Table CustomSqlQuery(id int)");
             }
         });
 

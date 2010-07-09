@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.spreadthesource.tapestry.dbmigration.ColumnDef;
-import com.spreadthesource.tapestry.dbmigration.migrations.TableContext;
+import com.spreadthesource.tapestry.dbmigration.migrations.Table;
 
 /**
  * Base class for MigrationContext that manipulates Tables.
  * 
  * @author ccordenier
  */
-public abstract class AbstractTableContext extends AbstractMigrationContext implements TableContext
+public abstract class AbstractTable extends AbstractMigrationContext implements Table
 {
 
     protected String name;
@@ -71,6 +71,13 @@ public abstract class AbstractTableContext extends AbstractMigrationContext impl
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    public ColumnDef add(String name)
+    {
+        ColumnDef col = new ColumnDef(name);
+        columns.add(col);
+        return col;
     }
 
 }
