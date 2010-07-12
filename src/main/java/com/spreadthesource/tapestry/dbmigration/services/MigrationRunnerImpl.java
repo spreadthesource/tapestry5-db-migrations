@@ -129,7 +129,7 @@ public class MigrationRunnerImpl implements MigrationRunner
         {
             try
             {
-                connectionHelper.prepare(true);
+                connectionHelper.prepare(false);
                 connection = connectionHelper.getConnection();
                 stmt = connection.createStatement();
             }
