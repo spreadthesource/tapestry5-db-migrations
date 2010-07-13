@@ -44,10 +44,6 @@ public class ManagedProviderConnectionHelper implements ConnectionHelper
             try
             {
                 JDBCExceptionReporter.logAndClearWarnings(connection);
-                if (!connection.getAutoCommit())
-                {
-                    connection.commit();
-                }
                 connectionProvider.closeConnection(connection);
             }
             finally

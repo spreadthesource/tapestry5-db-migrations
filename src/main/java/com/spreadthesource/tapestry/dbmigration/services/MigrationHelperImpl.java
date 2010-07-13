@@ -83,7 +83,7 @@ public class MigrationHelperImpl implements MigrationHelper
         try
         {
             // Get the database metadatas
-            connectionHelper.prepare(false);
+            connectionHelper.prepare(true);
             connection = connectionHelper.getConnection();
             databaseMetadata = new DatabaseMetadata(connection, dbSource.getDialect());
 
