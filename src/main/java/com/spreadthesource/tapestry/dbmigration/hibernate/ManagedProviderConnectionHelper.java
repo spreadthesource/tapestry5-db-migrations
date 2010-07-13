@@ -21,15 +21,10 @@ public class ManagedProviderConnectionHelper implements ConnectionHelper
         this.cfgProperties = cfgProperties;
     }
 
-    public void prepare(boolean needsAutoCommit) throws SQLException
+    public void prepare() throws SQLException
     {
         connectionProvider = ConnectionProviderFactory.newConnectionProvider(cfgProperties);
         connection = connectionProvider.getConnection();
-        if (needsAutoCommit && !connection.getAutoCommit())
-        {
-            connection.commit();
-            connection.setAutoCommit(true);
-        }
     }
 
     public Connection getConnection() throws SQLException
@@ -43,6 +38,7 @@ public class ManagedProviderConnectionHelper implements ConnectionHelper
         {
             try
             {
+                connection.commit();
                 JDBCExceptionReporter.logAndClearWarnings(connection);
                 connectionProvider.closeConnection(connection);
             }

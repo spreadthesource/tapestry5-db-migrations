@@ -60,6 +60,7 @@ public class TestForeignKey implements Migration
             {
                 // drop the constaint and the targeted table
                 ctx.dropForeignKey("tableB", "fk");
+                ctx.dropTable("tableB");
                 ctx.dropTable("tableA");
             }
 

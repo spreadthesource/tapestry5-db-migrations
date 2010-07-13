@@ -37,43 +37,6 @@ public class MigrationHelperImpl implements MigrationHelper
         this.log = log;
     }
 
-    public boolean checkIfTableExists(String tableName)
-    {
-        Connection connection = null;
-
-        ConnectionHelper connectionHelper = dbSource.getConnectionHelper();
-
-        try
-        {
-            connectionHelper.prepare(true);
-            connection = connectionHelper.getConnection();
-            databaseMetadata = new DatabaseMetadata(connection, dbSource.getDialect());
-
-            if (databaseMetadata.isTable(tableName))
-            {
-                log.info("Table " + tableName + " exists, schema is under version control");
-                return true;
-            }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException("could not get database metadata", sqle);
-        }
-        finally
-        {
-            try
-            {
-                connectionHelper.release();
-            }
-            catch (Exception e)
-            {
-                throw new RuntimeException("Error when closing connection", e);
-            }
-        }
-
-        return false;
-    }
-
     @SuppressWarnings("unchecked")
     public void add(MigrationCommand command)
     {
@@ -83,7 +46,7 @@ public class MigrationHelperImpl implements MigrationHelper
         try
         {
             // Get the database metadatas
-            connectionHelper.prepare(true);
+            // connectionHelper.prepare(true);
             connection = connectionHelper.getConnection();
             databaseMetadata = new DatabaseMetadata(connection, dbSource.getDialect());
 
@@ -95,24 +58,13 @@ public class MigrationHelperImpl implements MigrationHelper
             context.setDefaultCatalog(dbSource.getDefaultCatalog());
             context.setDefaultSchema(dbSource.getDefaultSchema());
             context.setPrimaryKeyStrategy(pkStrategy);
-            
+
             command.run(context);
             pendingSql.addAll(context.getQueries());
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException("could not get database metadata", sqle);
-        }
-        finally
-        {
-            try
-            {
-                connectionHelper.release();
-            }
-            catch (Exception e)
-            {
-                throw new RuntimeException("Error when closing connection", e);
-            }
         }
 
     }

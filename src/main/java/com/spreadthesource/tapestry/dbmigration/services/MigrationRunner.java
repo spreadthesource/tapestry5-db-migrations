@@ -8,6 +8,15 @@ import org.apache.tapestry5.ioc.Invocation;
 
 public interface MigrationRunner
 {
+    
+    /**
+     * Simply Check if the table exists in the database metadatas.
+     * 
+     * @param tableName
+     * @return
+     */
+    boolean checkIfTableExists(String tableName);
+
     /**
      * Play SQL commands for DELETE, INSERT, UPDATE
      * @param sql

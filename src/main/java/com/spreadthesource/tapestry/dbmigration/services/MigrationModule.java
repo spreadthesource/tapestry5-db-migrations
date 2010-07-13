@@ -20,6 +20,7 @@ import org.apache.tapestry5.ioc.Invocation;
 import org.apache.tapestry5.ioc.MappedConfiguration;
 import org.apache.tapestry5.ioc.MethodAdvice;
 import org.apache.tapestry5.ioc.MethodAdviceReceiver;
+import org.apache.tapestry5.ioc.ScopeConstants;
 import org.apache.tapestry5.ioc.ServiceBinder;
 import org.apache.tapestry5.ioc.annotations.Match;
 
@@ -43,7 +44,7 @@ public class MigrationModule
     {
         binder.bind(MigrationManager.class, MigrationManagerImpl.class);
         binder.bind(MigrationRunner.class, MigrationRunnerImpl.class);
-        binder.bind(MigrationHelper.class, MigrationHelperImpl.class);
+        binder.bind(MigrationHelper.class, MigrationHelperImpl.class).scope(ScopeConstants.PERTHREAD);
         binder.bind(DbSource.class, DbSourceImpl.class);
         binder.bind(PrimaryKeyStrategy.class, DefaultPrimaryKeyStrategy.class);
     }

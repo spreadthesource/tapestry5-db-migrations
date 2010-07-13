@@ -6,13 +6,6 @@ import com.spreadthesource.tapestry.dbmigration.command.MigrationCommand;
 
 public interface MigrationHelper
 {
-    /**
-     * Check if the table exists.
-     * 
-     * @param tableName
-     * @return
-     */
-    boolean checkIfTableExists(String tableName);
 
     /**
      * Generic method to add a Command that will generate SQL queries.

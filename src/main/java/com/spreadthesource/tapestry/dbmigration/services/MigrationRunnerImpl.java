@@ -14,7 +14,9 @@ import org.apache.tapestry5.ioc.ScopeConstants;
 import org.apache.tapestry5.ioc.annotations.Scope;
 import org.apache.tapestry5.ioc.annotations.Symbol;
 import org.apache.tapestry5.ioc.internal.util.TapestryException;
+import org.hibernate.dialect.Dialect;
 import org.hibernate.jdbc.util.Formatter;
+import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.slf4j.Logger;
 
 import com.spreadthesource.tapestry.dbmigration.MigrationSymbolConstants;
@@ -39,6 +41,8 @@ public class MigrationRunnerImpl implements MigrationRunner
 
     private Connection connection;
 
+    private Dialect dialect;
+
     private Statement stmt;
 
     private Writer outputFileWriter;
@@ -54,6 +58,7 @@ public class MigrationRunnerImpl implements MigrationRunner
 
         this.formatter = dbSource.getFormatter();
         this.connectionHelper = dbSource.getConnectionHelper();
+        this.dialect = dbSource.getDialect();
     }
 
     public void update(String... sql)
@@ -93,6 +98,26 @@ public class MigrationRunnerImpl implements MigrationRunner
         update(sql.toArray(new String[0]));
     }
 
+    public boolean checkIfTableExists(String tableName)
+    {
+        try
+        {
+            DatabaseMetadata databaseMetadata = new DatabaseMetadata(connection, dialect);
+
+            if (databaseMetadata.isTable(tableName))
+            {
+                log.info("Table " + tableName + " exists, schema is under version control");
+                return true;
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException("could not get database metadata", sqle);
+        }
+
+        return false;
+    }
+
     public ResultSet query(String sql)
     {
         try
@@ -129,7 +154,7 @@ public class MigrationRunnerImpl implements MigrationRunner
         {
             try
             {
-                connectionHelper.prepare(true);
+                connectionHelper.prepare();
                 connection = connectionHelper.getConnection();
                 stmt = connection.createStatement();
             }

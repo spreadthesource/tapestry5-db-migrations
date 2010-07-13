@@ -178,7 +178,7 @@ public class MigrationManagerImpl implements MigrationManager
 
     public void initialize()
     {
-        if (helper.checkIfTableExists(versioningTableName)) return;
+        if (runner.checkIfTableExists(versioningTableName)) return;
 
         log.info("Schema is not versionned. Creating versionning table: " + versioningTableName
                 + " (playing " + SchemaInitialization.class.getCanonicalName() + ")");

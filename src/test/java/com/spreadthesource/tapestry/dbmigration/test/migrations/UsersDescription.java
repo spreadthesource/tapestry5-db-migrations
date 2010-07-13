@@ -3,8 +3,10 @@ package com.spreadthesource.tapestry.dbmigration.test.migrations;
 import org.apache.tapestry5.ioc.annotations.Inject;
 
 import com.spreadthesource.tapestry.dbmigration.annotations.Version;
+import com.spreadthesource.tapestry.dbmigration.command.Drop;
 import com.spreadthesource.tapestry.dbmigration.command.Sql;
 import com.spreadthesource.tapestry.dbmigration.command.UpdateTable;
+import com.spreadthesource.tapestry.dbmigration.migrations.DropContext;
 import com.spreadthesource.tapestry.dbmigration.migrations.Migration;
 import com.spreadthesource.tapestry.dbmigration.migrations.SqlQuery;
 import com.spreadthesource.tapestry.dbmigration.migrations.Table;
@@ -39,7 +41,14 @@ public class UsersDescription implements Migration
 
     public void down()
     {
-        // Nothing to do
+        helper.add(new Drop()
+        {
+            public void run(DropContext ctx)
+            {
+                ctx.dropTable("CustomSqlQuery");
+
+            }
+        });
     }
 
 }

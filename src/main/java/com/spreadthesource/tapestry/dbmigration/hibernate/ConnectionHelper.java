@@ -8,11 +8,9 @@ public interface ConnectionHelper
     /**
      * Prepare the helper for use.
      * 
-     * @param needsAutoCommit
-     *            Should connection be forced to auto-commit if not already.
      * @throws SQLException
      */
-    public void prepare(boolean needsAutoCommit) throws SQLException;
+    public void prepare() throws SQLException;
 
     /**
      * Get a reference to the connection we are using.
