@@ -5,7 +5,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.tapestry5.ioc.internal.util.Defense;
 import org.hibernate.mapping.Column;
 import org.hibernate.mapping.UniqueKey;
 
@@ -23,7 +22,7 @@ public class ConstraintImpl extends AbstractMigrationContext implements
     public void setForeignKey(String name, String foreignTable, String[] fromColumns,
             String[] toColumns)
     {
-        Defense.notNull(name, "Constraint name");
+        assert name != null;
         String fkScript = dialect.getAddForeignKeyConstraintString(
                 name,
                 fromColumns,
@@ -40,7 +39,7 @@ public class ConstraintImpl extends AbstractMigrationContext implements
 
     public void setUnique(String name, String... columns)
     {
-        Defense.notNull(name, "Constraint name");
+        assert name != null;
         uniqueTuples.put(name, columns);
     }
 
