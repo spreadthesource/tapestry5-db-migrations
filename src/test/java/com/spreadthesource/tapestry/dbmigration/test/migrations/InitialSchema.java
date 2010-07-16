@@ -51,7 +51,7 @@ public class InitialSchema implements Migration
         {
             public void run(Constraint ctx)
             {
-                ctx.setName("Authority");
+                ctx.setTableName("Authority");
                 ctx.setUnique("AuthorityUnicity", "label", "id");
             }
         });

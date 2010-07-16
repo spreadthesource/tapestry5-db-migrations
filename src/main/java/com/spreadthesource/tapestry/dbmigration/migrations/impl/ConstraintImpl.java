@@ -10,8 +10,7 @@ import org.hibernate.mapping.UniqueKey;
 
 import com.spreadthesource.tapestry.dbmigration.migrations.Constraint;
 
-public class ConstraintImpl extends AbstractMigrationContext implements
-        Constraint
+public class ConstraintImpl extends AbstractMigrationContext implements Constraint
 {
     private String name;
 
@@ -19,20 +18,35 @@ public class ConstraintImpl extends AbstractMigrationContext implements
 
     private Map<String, String[]> uniqueTuples = new Hashtable<String, String[]>();
 
-    public void setForeignKey(String name, String foreignTable, String[] fromColumns,
-            String[] toColumns)
+    public void setForeignKey(String name, String foreignTable, String[] fromToColumns)
     {
         assert name != null;
+        assert (fromToColumns.length % 2 == 0);
+
+        List<String> fromColumns = new ArrayList<String>();
+        List<String> toColumns = new ArrayList<String>();
+
+        int i = 0;
+        for (String column : fromToColumns)
+        {
+            if (i % 2 == 0)
+                fromColumns.add(column);
+            else
+                toColumns.add(column);
+
+            i++;
+        }
+
         String fkScript = dialect.getAddForeignKeyConstraintString(
                 name,
-                fromColumns,
+                fromColumns.toArray(new String[0]),
                 foreignTable,
-                toColumns,
+                toColumns.toArray(new String[0]),
                 false);
         foreignKeys.add(fkScript);
     }
 
-    public void setName(String tableName)
+    public void setTableName(String tableName)
     {
         this.name = tableName;
     }

@@ -44,10 +44,8 @@ public class TestForeignKey implements Migration
         {
             public void run(Constraint ctx)
             {
-                ctx.setName("tableB");
-                ctx.setForeignKey("fk", "tableA", new String[]
-                { "id" }, new String[]
-                { "id" });
+                ctx.setTableName("tableB");
+                ctx.setForeignKey("fk", "tableA", "id", "id" );
             }
         });
     }

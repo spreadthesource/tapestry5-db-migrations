@@ -9,14 +9,14 @@ public interface Constraint extends MigrationContext
 {
     /**
      * Set the name of the table to create on which the constraint is applied.
-     *
+     * 
      * @param tableName
      */
-    void setName(String tableName);
+    void setTableName(String tableName);
 
     /**
      * Set a unique tuple.
-     *
+     * 
      * @param name
      * @param columns
      */
@@ -24,11 +24,11 @@ public interface Constraint extends MigrationContext
 
     /**
      * Create foreign keys.
-     *
+     * 
      * @param name
      * @param foreignTable
-     * @param fromColumns
-     * @param toColumns
+     * @param from
+     *            and to columns pairs
      */
-    void setForeignKey(String name, String foreignTable, String[] fromColumns, String[] toColumns);
+    void setForeignKey(String name, String foreignTable, String... fromToColumns);
 }
