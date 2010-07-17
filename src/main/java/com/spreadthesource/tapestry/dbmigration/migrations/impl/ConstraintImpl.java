@@ -12,7 +12,7 @@ import com.spreadthesource.tapestry.dbmigration.migrations.Constraint;
 
 public class ConstraintImpl extends AbstractMigrationContext implements Constraint
 {
-    private String name;
+    private String tableName;
 
     private List<String> foreignKeys = new ArrayList<String>();
 
@@ -48,7 +48,7 @@ public class ConstraintImpl extends AbstractMigrationContext implements Constrai
 
     public void setTableName(String tableName)
     {
-        this.name = tableName;
+        this.tableName = tableName;
     }
 
     public void setUnique(String name, String... columns)
@@ -59,12 +59,12 @@ public class ConstraintImpl extends AbstractMigrationContext implements Constrai
 
     public List<String> getQueries()
     {
-        if (name == null) { throw new IllegalArgumentException(
+        if (tableName == null) { throw new IllegalArgumentException(
                 "Table name cannot be null to generate constraint query string."); }
 
         List<String> result = new ArrayList<String>();
 
-        org.hibernate.mapping.Table hTable = new org.hibernate.mapping.Table(name);
+        org.hibernate.mapping.Table hTable = new org.hibernate.mapping.Table(tableName);
 
         // Add foreign keys alter queries
         for (String query : foreignKeys)

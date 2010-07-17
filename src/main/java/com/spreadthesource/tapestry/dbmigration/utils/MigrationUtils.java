@@ -1,5 +1,6 @@
 package com.spreadthesource.tapestry.dbmigration.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,9 +25,41 @@ public class MigrationUtils
 
     public final static String buildPkColumnId(String tableName)
     {
-        return (tableName.charAt(0) + tableName.substring(1).replaceAll("([A-Z])", "_$1"))
-                .toLowerCase()
+        return singularizeWords((tableName.charAt(0) + tableName.substring(1).replaceAll("([A-Z])", "_$1"))
+                .toLowerCase(), "_")
                 + "_id";
+    }
+    
+    public final static String singularizeWords(String words, String separator) {
+        StringBuffer singularWords = new StringBuffer();
+        
+        String[] wordsArray = words.split(separator);
+        
+        int length = wordsArray.length;
+        for (int i = 0; i < length;i++)
+        {
+            String word = wordsArray[i];
+            
+            singularWords.append(singularize(word));
+            
+            if (i + 1 < length)
+                singularWords.append("_");
+        }
+        
+        return singularWords.toString();   
+    }
+    
+    /**
+     * Convert a plural word to a singular word.
+     * If word ends with "ies", like activities, then "ies" is replaced by "y".
+     * Else final "s" is removed.
+     */
+    public final static String singularize(String pluralWord) {
+        if (!pluralWord.endsWith("s"))
+            return pluralWord;
+        
+        int length = pluralWord.length();
+        return pluralWord.endsWith("ies") ? pluralWord.substring(0, length - 3) + "y" : pluralWord.substring(0, length - 1);
     }
 
     /**
