@@ -8,6 +8,7 @@ import org.apache.tapestry5.ioc.annotations.Inject;
 import org.apache.tapestry5.ioc.annotations.Symbol;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
+import org.hibernate.cfg.Mappings;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.jdbc.util.FormatStyle;
 import org.hibernate.jdbc.util.Formatter;
@@ -32,6 +33,8 @@ public class DbSourceImpl implements DbSource
     private String defaultSchema;
 
     private Formatter formatter;
+
+    private Mappings mappings;
 
     public DbSourceImpl(
             List<HibernateConfigurer> hibConfigurers,
@@ -60,6 +63,9 @@ public class DbSourceImpl implements DbSource
 
         this.formatter = (PropertiesHelper.getBoolean(Environment.FORMAT_SQL, properties) ? FormatStyle.DDL
                 : FormatStyle.NONE).getFormatter();
+
+        mappings = configuration.createMappings();
+        configuration.buildMappings();
     }
 
     public Dialect getDialect()
@@ -85,5 +91,10 @@ public class DbSourceImpl implements DbSource
     public Formatter getFormatter()
     {
         return this.formatter;
+    }
+
+    public Mappings getMappings()
+    {
+        return mappings;
     }
 }
