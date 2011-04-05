@@ -234,6 +234,7 @@
 	</pluginRepositories>
 
 	<properties>
-		<tapestry-release-version>5.2.4</tapestry-release-version>
+		<tapestry-release-version>5.2.5</tapestry-release-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 </project>
