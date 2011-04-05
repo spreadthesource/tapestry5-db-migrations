@@ -82,18 +82,19 @@ public class MigrationManagerImpl implements MigrationManager
 
     public Integer current()
     {
-        QuerySelect q = new QuerySelect(dbSource.getDialect());
-        q.addSelectFragmentString("version");
-
-        JoinFragment from = q.getJoinFragment();
-        from.addJoins(" " + versioningTableName, "");
-
-        q.addOrderBy("id DESC");
-
-        ResultSet r = runner.query(q.toQueryString());
-
         try
         {
+
+            QuerySelect q = new QuerySelect(dbSource.getDialect());
+            q.addSelectFragmentString("version");
+
+            JoinFragment from = q.getJoinFragment();
+            from.addJoins(" " + versioningTableName, "");
+
+            q.addOrderBy("id DESC");
+
+            ResultSet r = runner.query(q.toQueryString());
+
             if (r.next())
             {
                 Integer version = r.getInt("version");
@@ -101,8 +102,7 @@ public class MigrationManagerImpl implements MigrationManager
                 return version;
             }
 
-        }
-        catch (SQLException e)
+        } catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -198,7 +198,11 @@ public class MigrationManagerImpl implements MigrationManager
     {
         Integer current = current();
 
-        if (current == null) initialize();
+        if (current == null)
+        {
+            initialize();
+            current = 0;
+        }
 
         Integer next = up();
 
