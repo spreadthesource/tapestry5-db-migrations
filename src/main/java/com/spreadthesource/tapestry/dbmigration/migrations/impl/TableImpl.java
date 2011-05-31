@@ -57,7 +57,7 @@ public class TableImpl extends AbstractTable implements Table
                 primaryKey.addColumn(hColumn);
                 if (col.getIdentityGenerator() != null)
                 {
-                    SimpleValue idValue = new SimpleValue(hTable);
+                    SimpleValue idValue = new SimpleValue(mappings, hTable);
                     idValue.setIdentifierGeneratorStrategy("identity");
                     idValue.setTypeName(dialect.getHibernateTypeName(col.getType()));
                     hColumn.setValue(idValue);
@@ -76,7 +76,7 @@ public class TableImpl extends AbstractTable implements Table
                 primaryKey.addColumn(hColumn);
                 if (col.getIdentityGenerator() != null)
                 {
-                    SimpleValue idValue = new SimpleValue(hTable);
+                    SimpleValue idValue = new SimpleValue(mappings, hTable);
                     idValue.setIdentifierGeneratorStrategy("identity");
                     idValue.setTypeName(dialect.getHibernateTypeName(col.getType()));
                     hColumn.setValue(idValue);
