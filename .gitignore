@@ -4,3 +4,5 @@
 target/
 .DS_Store
 test-output
+.idea
+tapestry5-db-migration.iml

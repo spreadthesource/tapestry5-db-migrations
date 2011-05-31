@@ -1,5 +1,6 @@
 package com.spreadthesource.tapestry.dbmigration.migrations.impl;
 
+import org.hibernate.cfg.Mappings;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 
@@ -9,7 +10,7 @@ import com.spreadthesource.tapestry.dbmigration.services.PrimaryKeyStrategy;
 
 /**
  * Base class for MigrationContext.
- * 
+ *
  * @author ccordenier
  */
 public abstract class AbstractMigrationContext implements MigrationContext
@@ -25,6 +26,8 @@ public abstract class AbstractMigrationContext implements MigrationContext
     protected DatabaseMetadata databaseMetadata;
 
     protected PrimaryKeyStrategy pkStrategy;
+
+    protected Mappings mappings;
 
     public void setConnectionHelper(ConnectionHelper helper)
     {
@@ -56,4 +59,8 @@ public abstract class AbstractMigrationContext implements MigrationContext
         this.databaseMetadata = databaseMetadata;
     }
 
+    public void setMappings(Mappings mappings)
+    {
+        this.mappings = mappings;
+    }
 }
